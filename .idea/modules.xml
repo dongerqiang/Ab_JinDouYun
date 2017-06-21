@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/BleOfQdigo/BleOfQdigo.iml" filepath="$PROJECT_DIR$/BleOfQdigo/BleOfQdigo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BleSDK.iml" filepath="$PROJECT_DIR$/BleSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LuYuanDemo/LuYuanDemo.iml" filepath="$PROJECT_DIR$/LuYuanDemo/LuYuanDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bluxBleClient/bluxBleClient.iml" filepath="$PROJECT_DIR$/bluxBleClient/bluxBleClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bluxBleServer/bluxBleServer.iml" filepath="$PROJECT_DIR$/bluxBleServer/bluxBleServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jindouyun/jindouyun.iml" filepath="$PROJECT_DIR$/jindouyun/jindouyun.iml" />
+      <module fileurl="file://$PROJECT_DIR$/smartBikeDemo/smartBikeDemo.iml" filepath="$PROJECT_DIR$/smartBikeDemo/smartBikeDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/testapplication/testapplication.iml" filepath="$PROJECT_DIR$/testapplication/testapplication.iml" />
+    </modules>
+  </component>
+</project>

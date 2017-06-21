@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:custom="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/connet_tips"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        android:paddingEnd="10dp"
+        android:gravity="center_vertical"
+        android:paddingStart="10dp">
+
+        <TextView
+            android:id="@+id/connect_out"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center|start"
+            android:text="connecting ..."
+            android:textSize="16sp"/>
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/bike_control"
+            android:gravity="center"/>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1">
+
+            <!--<ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/compass_out"/>-->
+
+            <!--<ImageView
+                android:id="@+id/compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/compass_in"/>-->
+            <com.qdigo.jindouyun.view.CompassView
+                android:id="@+id/compass"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                custom:radius = "18dp"
+                custom:short_dash = "0dp"
+                custom:long_dash = "5dp"
+                custom:text_size = "4sp"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/speed_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/speed_icon"
+        android:drawablePadding="10dp"
+        android:gravity="center"
+        android:text="speed"
+        android:textSize="30sp"
+        android:layout_below="@+id/connet_tips"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"/>
+
+    <ImageView
+        android:layout_below="@id/connet_tips"
+        android:id="@+id/map"
+        android:layout_marginTop="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/map"
+        />
+    <LinearLayout
+        android:id="@+id/speed"
+        android:layout_below="@+id/map"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_marginStart="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/battery"/>
+        <TextView
+            android:id="@+id/bike_speed"
+            android:layout_marginStart="20dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="70sp"
+            android:lines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:text="00.00"/>
+        <TextView
+            android:layout_marginEnd="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:text="km/h"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/problem"
+        android:layout_below="@id/speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设备正常,sshdfksjdhfjk,shdfuishdifhs,dfsfdsdf,"
+        android:textSize="20sp"
+        android:lines="1"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ff0000"
+        />
+    <TextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/dangwei"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/problem"
+        android:layout_marginStart="10dp"
+        android:text="档位选择"/>
+
+    <LinearLayout
+        android:id="@+id/dang_start_end"
+        android:layout_below="@id/dangwei"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="30dp">
+        <TextView
+            android:id="@+id/tv_dangwei1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="1档"
+            android:gravity="center"
+            android:textColor="#00aa99"/>
+        <!--<TextView
+            android:id="@+id/tv_dangwei2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="2档"
+            android:gravity="center"
+            android:textColor="#00aa99"/>-->
+        <!--<TextView
+            android:id="@+id/tv_dangwei3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textColor="#00aa99"
+            android:gravity="center"
+            android:scrollIndicators="top"
+            android:text="3档"/>-->
+    </LinearLayout>
+
+    <!--<ProgressBar
+        android:id="@+id/progress"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_below="@id/dang_start_end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:max="25"
+        android:progress="11"
+        android:secondaryProgress="11"
+        android:secondaryProgressTint="#00aa99"
+        />-->
+    <SeekBar
+        android:id="@+id/progress"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_below="@id/dang_start_end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="1"
+        android:max="24"
+        android:tag="类的" />
+
+
+    <LinearLayout
+        android:id="@+id/pp"
+        android:layout_marginTop="30dp"
+        android:layout_below="@id/dang_start_end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:drawableStart="@drawable/mile"
+            android:gravity="center"
+            android:text="里程："/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:lines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:text="50 km"
+            android:id="@+id/mile"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="骑行时间："
+            android:layout_marginStart="5dp"
+            android:gravity="center"
+            android:drawableStart="@drawable/time"
+            />
+        <!--<TextView
+            android:id="@+id/time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:lines="1"
+            android:text="00:00:00"/>-->
+        <Chronometer
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:format="00:00:00"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_marginEnd="10dp"
+            android:id="@+id/time"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_below="@+id/pp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="屏幕常亮"
+            android:gravity="center_vertical"
+            android:drawableStart="@drawable/light2"
+            android:drawablePadding="5dp"/>
+
+        <CheckBox
+            android:id="@+id/screenOn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@drawable/select_check_screen"
+            android:gravity="center"
+            />
+    </LinearLayout>
+</RelativeLayout>

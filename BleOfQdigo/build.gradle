@@ -1,0 +1,158 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    signingConfigs {
+        debug {
+            storeFile file("C:/Users/jpj/.android/debug.keystore")
+        }
+
+        release {
+            keyAlias 'peter2'
+            keyPassword '123456'
+            storeFile file("c:/Users/jpj/blesdkapp.jks")
+            storePassword '123456'
+        }
+    }
+
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+
+    //默认设置
+    defaultConfig {
+        applicationId "com.qdigo.deq.blesdk"
+        minSdkVersion 18
+        targetSdkVersion 20
+        versionCode 1
+        versionName "1.0"
+        // dex突破65535的限制
+        multiDexEnabled true
+//        manifestPlaceholders = [UMENG_CHANNEL_VALUE:"channel name"]
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    /* sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }*/
+
+    //执行lint检查，有任何的错误或者警告提示，都会终止构建，我们可以将其关掉。
+    lintOptions {
+        abortOnError true
+    }
+
+
+
+    buildTypes {
+        debug {
+            // 显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+
+            versionNameSuffix "-debug"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.debug
+        }
+
+        release {
+            // 不显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+
+            //混淆
+            minifyEnabled true
+
+            //Zipalign优化
+            zipAlignEnabled true
+
+            // 移除无用的resource文件
+            shrinkResources false
+            //加载默认混淆配置文件 progudard-android.txt在sdk目录里面，不用管，proguard.cfg是我们自己配<span></span>的混淆文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //签名
+            signingConfig signingConfigs.release
+
+        }
+    }
+
+    //配置多版本的APK
+    productFlavors {
+        Beta {
+            applicationId "com.qdigo.deq.blesdk.beta"
+            //在java代码中使用，context.getResources().getString(R.string.strKey)
+            resValue("string", "strKey", "betaStrValue")
+            //
+//            manifestPlaceholders = [app_name:"multi_versionapk.beta" ,icon: "@mipmap/ic_launcher"]
+        }
+
+        Releases {
+            applicationId "com.qdigo.deq.blesdk.releases"
+            //在java代码中使用，context.getResources().getString(R.string.strKey)
+            resValue("string", "strKey", "releaseStrValue")
+        }
+        xiaomi {}
+        Umeng {}
+        qihu360 {}
+    }
+
+    /*productFlavors.all { flavor ->
+        flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+    }*/
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = outputFile.name.replace(".apk", "-${defaultConfig.versionName}.apk")
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':bluxBleClient')
+    compile project(':bluxBleServer')
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
+    //圆图
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    testCompile 'junit:junit:4.12'
+}

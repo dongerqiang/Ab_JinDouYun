@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">BleSDK</string>
+    <string name="ble_not_supported">不支持BLE</string>
+    <string name="romote_service_name">BlueGuardServer</string>
+    <string name="device_list">正在搜索蓝牙设备...</string>
+    <string name="toast_pair_error">please input correct pair number</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="actionbar_title">电滴出行</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

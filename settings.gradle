@@ -1,0 +1,5 @@
+include ':BleOfQdigo', ':testapplication', ':jindouyun'
+include ':LuYuanDemo'
+include ':bluxBleClient'
+include ':bluxBleServer'
+include ':smartBikeDemo'

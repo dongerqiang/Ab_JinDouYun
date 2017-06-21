@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <include layout="@layout/action_bar"/>
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/num1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableTop="@android:drawable/btn_radio"
+            android:gravity="center"
+            android:text="附近电滴"
+            android:checked="true"/>
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/num2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableTop="@android:drawable/btn_radio"
+            android:gravity="center"
+            android:text="我的电滴"/>
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/num3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableTop="@android:drawable/btn_radio"
+            android:gravity="center"
+            android:text="扫描电滴"/>
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/num4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableTop="@android:drawable/btn_radio"
+            android:gravity="center"
+            android:text="借车点"/>
+
+    </RadioGroup>
+</LinearLayout>

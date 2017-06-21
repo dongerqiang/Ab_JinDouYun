@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">筋斗云</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="romote_service_name">蓝牙服务</string>
+    <string name="title_activity_map">MapActivity</string>
+</resources>

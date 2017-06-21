@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="bike_control">
+        <item>上锁</item>
+        <item>解锁 </item>
+        <item>寻车</item>
+        <item>上电</item>
+        <item>断电</item>
+        <item>开后备箱</item>
+    </string-array>
+</resources>

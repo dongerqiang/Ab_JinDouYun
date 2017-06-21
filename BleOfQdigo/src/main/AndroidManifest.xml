@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.qdigo.deq.blesdk">
+
+    <uses-sdk
+        android:minSdkVersion="18"
+        android:targetSdkVersion="20"/>
+
+    <!-- bluetooth permission ***************************************************-->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true"/>
+    <!-- bluetooth permission ***************************************************-->
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    //地图SDK（包含其搜索功能）需要的基础权限============================================================
+    <!--允许程序打开网络套接字-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--允许程序设置内置sd卡的写权限-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--允许程序获取网络状态-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--允许程序访问WiFi网络信息-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--允许程序读写手机状态和身份-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--允许程序访问CellID或WiFi热点来获取粗略的位置-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    //地图SDK（包含其搜索功能）需要的基础权限============================================================
+
+
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon,android:label">
+
+        <!--高德的key  start ********************************-->
+        <meta-data android:name="com.amap.api.v2.apikey" android:value="80c1db2e6dddf174722ff7886a1e150d">
+            //开发者申请的key
+        </meta-data>
+
+        <service android:name="com.amap.api.location.APSService"></service>
+        <!--高德的key  end ********************************-->
+
+        <activity android:name=".activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.xiaofu_yan.blux.le.server.BluxSsService"
+            android:exported="false"
+            android:label="@string/romote_service_name"
+            tools:replace="android:label ,android:exported">
+            <intent-filter>
+                <action android:name="com.xiaofu_yan.blux.le.server.BluxSsService.ACTION"/>
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".activity.MapActivity"
+            android:label="@string/title_activity_map"
+            android:parentActivityName="android.support.v7.app.AppCompatActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="android.support.v7.app.AppCompatActivity"/>
+        </activity>
+    </application>
+
+</manifest>
