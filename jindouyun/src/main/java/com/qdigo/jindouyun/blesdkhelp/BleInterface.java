@@ -148,8 +148,9 @@ public class BleInterface {
 		if(mSmartBike != null){
 			mSmartBike.setShockSensitivity(dang);
 		}
-		
 	}
+
+
 	
 	public void findCarAlarm(){
 		if(!isSmartBikeAvailable()) return;
@@ -164,7 +165,10 @@ public class BleInterface {
 	public boolean isSmartBikeAvailable(){
 		return mSmartBike != null && mSmartBike.connected();
 	}
-	
+
+	public SmartBike getSmartBike(){
+		return mSmartBike;
+	}
 	
 	
 	protected boolean isRunning(){
@@ -252,29 +256,43 @@ public class BleInterface {
 					mSmartBike.setConnectionKey(lastDevice.key);
 					mSmartBike.connect();
 				}else{
-					mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
+					// TODO: 2017-06-26  
+//					mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
+					mSmartBike.pair(Integer.decode("000000"));
 				}
 			}else{
-				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
+				// TODO: 2017-06-26  
+//				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
+				mSmartBike.pair(Integer.decode("000000"));
 			}
 			
 		}
 		
 	}
 	
-	int currentMileage=0;
+
 	// SmartBike delegate
 	private class SmartBikeDelegate extends SmartBike.Delegate {
 		@Override
 		public void blueGuardConnected(BlueGuard blueGuard) {
             mSmartBike.getAccountManager(); //
             app.broadUtils.sendBleState(BroadcastUtils.BLE_CONNECTED);
-            
+			//参数置0
+			currentTime = System.currentTimeMillis();
+			currentMileage=0;
+			runningTime = 0 ;
+            runningMileage=0;
 		}
 	
 		@Override
 		public void blueGuardDisconnected(BlueGuard blueGuard, BlueGuard.DisconnectReason reason) {
 			 app.broadUtils.sendBleState(BroadcastUtils.BLE_DISCONNECT);
+			if(reason == BlueGuard.DisconnectReason.ERROR_PERMISSION){
+				lastDevice.key = "";
+				lastDevice.name = "";
+				lastDevice.identifier ="";
+				DeviceDB.save(mCtx,lastDevice);
+			}
 		}
 
 		@Override
@@ -287,12 +305,25 @@ public class BleInterface {
 			
 		}
 		int currentDangWei = 1;
-		boolean isFirst = true;
+		float runningMileage=0;
+        float currentMileage = 0;
+		long runningTime = 0 ;
+		long currentTime = System.currentTimeMillis();
 		@Override
 		public void smartBikeUpdateData(SmartBike smartBike, byte[] data) {
 		//	[-56, -57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 84, 0, 2]
             Log.w("ParseDataUtils","data  == "+ Arrays.toString(data));
 			long dataTime = System.currentTimeMillis();
+
+			if(dataTime>currentTime){
+				runningTime = (runningTime+(dataTime-currentTime));
+				MyApplication.logBug("--increase mile ="+(runningTime)+" ms");
+				MyApplication.app.broadUtils.sendMileageRunningTime(ParseDataUtils.FormatMiss(runningTime/1000));
+
+			}else{
+				runningTime = 0;
+			}
+			currentTime = dataTime;
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < data.length; i++) {
 				if(i == data.length -1){
@@ -305,14 +336,28 @@ public class BleInterface {
 			
 			MyApplication.logBug("data="+sb.toString());
 
-			String mile = ParseDataUtils.parseMile(data); //km
+			String mile = ParseDataUtils.parseMile(data);
+			float parseFloat = Float.parseFloat(mile);
+			//km
+			if(currentMileage ==0){
+				currentMileage = parseFloat;
+			}
+			if(parseFloat-currentMileage>=0){
+				MyApplication.logBug("--increase mile ="+(parseFloat-currentMileage)+" km");
+                runningMileage = runningMileage+parseFloat-currentMileage;
+				MyApplication.app.broadUtils.sendMileageDm(ParseDataUtils.dot2String(runningMileage));
+			}
+
+
+			currentMileage = parseFloat;
+
 			String error =ParseDataUtils.parseARS(data);
 			String speed = ParseDataUtils.parseSpeed(mCtx,data);//  km/h
 
 			int dangwei = ParseDataUtils.parseDangWei(data);
 			Log.w("ParseDataUtils","dangwei  == "+ dangwei+"\n currentTime == "+currentDangWei);
             app.broadUtils.sendDangWei(dangwei);
-
+            app.broadUtils.sendBattery(ParseDataUtils.parseVoltage(data));
 			app.broadUtils.sendMileage(mile);
 			app.broadUtils.sendSpeed(speed);
 
@@ -324,11 +369,21 @@ public class BleInterface {
 		public void blueGuardPairResult(BlueGuard blueGuard, BlueGuard.PairResult result, String key) {
 			if(result == BlueGuard.PairResult.SUCCESS){
 				DeviceDB.Record rec = new DeviceDB.Record(blueGuard.name(), blueGuard.identifier(), key);
+				if(key == null){
+					rec.key ="";
+				}
 				DeviceDB.save(mCtx, rec);
+				lastDevice = DeviceDB.load(mCtx);
 			}else{
-				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
+				DeviceDB.Record rec = new DeviceDB.Record(blueGuard.name(), blueGuard.identifier(), "");
+				if(key == null){
+					rec.key ="";
+				}
+				DeviceDB.save(mCtx,rec);
+				lastDevice = DeviceDB.load(mCtx);
+//				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
 			}
-			
+//			lastDevice = DeviceDB.load(mCtx);
 		}
 	}
 

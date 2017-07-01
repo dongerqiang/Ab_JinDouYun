@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <LinearLayout
+       <!-- <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="38dp"
             android:gravity="center"
@@ -175,7 +175,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="0.8dp"
-            android:background="#22252c" />
+            android:background="#22252c" />-->
 
         <LinearLayout
             android:id="@+id/ljLayout"
@@ -262,9 +262,8 @@
             android:layout_width="match_parent"
             android:layout_height="0.8dp"
             android:background="#22252c" />
-
         <LinearLayout
-            android:id="@+id/volLayout"
+            android:id="@+id/danweiLayout"
             android:layout_width="match_parent"
             android:layout_height="38dp"
             android:gravity="center"
@@ -276,7 +275,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="电压"
+                android:text="速度单位"
                 android:textColor="#a3a4ac"
                 android:textSize="16sp" />
 
@@ -287,10 +286,11 @@
                 android:orientation="horizontal" >
 
                 <TextView
-                    android:id="@+id/volTv"
+                    android:id="@+id/danWeiTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="72V"
+                    android:text="km"
+                    android:textStyle="bold"
                     android:textColor="#a3a4ac"
                     android:textSize="14sp" />
 
@@ -305,8 +305,50 @@
             android:layout_width="match_parent"
             android:layout_height="0.8dp"
             android:background="#22252c" />
-
         <LinearLayout
+            android:id="@+id/volLayout"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingEnd="12dp"
+            android:paddingStart="12dp" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="剩余电量"
+                android:textColor="#a3a4ac"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/volTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="41.5v"
+                    android:textColor="#a3a4ac"
+                    android:textSize="14sp" />
+
+               <!-- <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_select_down" />-->
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:background="#22252c" />
+
+        <!--<LinearLayout
             android:id="@+id/speedLayout"
             android:layout_width="match_parent"
             android:layout_height="38dp"
@@ -342,6 +384,70 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/icon_select_down" />
             </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:background="#22252c" />-->
+
+
+        <LinearLayout
+            android:id="@+id/totalMile"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingEnd="12dp"
+            android:paddingStart="12dp" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="总里程"
+                android:textColor="#a3a4ac"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 km"
+                android:textStyle="bold"
+                android:textColor="#a3a4ac"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:background="#22252c" />
+        <LinearLayout
+            android:id="@+id/caluli"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingEnd="12dp"
+            android:paddingStart="12dp" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="最近骑行消耗的能量(卡路里)"
+                android:textColor="#a3a4ac"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_carluli"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textStyle="bold"
+                android:textColor="#a3a4ac"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <View

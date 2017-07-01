@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qdigo.jindouyun.R;
@@ -57,9 +58,12 @@ public class DialogUtils {
 
     }
 
-    public  void showSelectList(Context ctx,String[] items,final DialogCallback callback){
+    public  void showSelectList(Context ctx,String title,String[] items,final DialogCallback callback){
          final Dialog dialog = createDialog(ctx, R.layout.dialog_select_list_layout);
          final WheelView wheelView = (WheelView) dialog.findViewById(R.id.wheelView);
+
+        TextView   mTitle = (TextView) dialog.findViewById(R.id.list_title);
+        mTitle.setText(title);
          final StringAdapter adapter = new StringAdapter(ctx, items);
         wheelView.setViewAdapter(adapter);
         dialog.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
@@ -118,6 +122,42 @@ public class DialogUtils {
         });
         loadingDialog.setCancelable(true);// 不可以用“返回键”取消
 
+        WindowManager.LayoutParams lp = loadingDialog.getWindow().getAttributes();
+        lp.width = app.widthPixels;
+        lp.height = app.heightPixels;
+
+        loadingDialog.setContentView(v);// 设置布局
+        return loadingDialog;
+
+    }
+
+    public static Dialog createChangeMapDialog(Context context,final DialogCallback callback) {
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_change_map, null);// 得到加载view
+        final LinearLayout gaode_map = (LinearLayout) v.findViewById(R.id.gaode_map);// 提示文字
+        final LinearLayout baidu_map = (LinearLayout) v.findViewById(R.id.baidu_map);// 提示文字
+
+        final Dialog loadingDialog = new Dialog(context, R.style.loading_dialog);// 创建自定义样式dialog
+        loadingDialog.setCancelable(true);//可以用“返回键”取消
+        baidu_map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(callback!= null){
+                    callback.confirm();
+                }
+                loadingDialog.dismiss();
+            }
+        });
+        gaode_map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(callback!= null){
+                    callback.camareClick();
+                }
+                loadingDialog.dismiss();
+            }
+        });
         WindowManager.LayoutParams lp = loadingDialog.getWindow().getAttributes();
         lp.width = app.widthPixels;
         lp.height = app.heightPixels;

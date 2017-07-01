@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,10 @@ import com.qdigo.jindouyun.activity.MainActivity;
 import com.qdigo.jindouyun.activity.ScanActivity;
 import com.qdigo.jindouyun.activity.SettingActivity;
 import com.qdigo.jindouyun.activity.WebActivity;
+import com.qdigo.jindouyun.utils.DeviceDB;
 import com.qdigo.jindouyun.utils.DialogCallback;
 import com.qdigo.jindouyun.utils.DialogUtils;
+import com.xiaofu_yan.blux.smart_bike.SmartBike;
 
 import static com.qdigo.jindouyun.MyApplication.app;
 
@@ -179,6 +182,26 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 }*/
                 if(app.ble.isSmartBikeAvailable()){
                     app.ble.disConnectDevice();
+                }else if(app.ble.getSmartBike() !=null){
+                    SmartBike smartBike = app.ble.getSmartBike();
+                    boolean connected = app.ble.getSmartBike().connected();
+                    if(connected){
+                        smartBike.cancelConnect();
+                    }else{
+                        DeviceDB.Record load = DeviceDB.load(getActivity());
+                        app.ble.initBle(getActivity());
+                        if(load != null){
+                            if(!TextUtils.isEmpty(load.key)){
+                                smartBike.setConnectionKey(load.key);
+                                smartBike.connect();
+                            }else{
+                                startActivity(new Intent(getActivity(), ScanActivity.class));
+                            }
+                        }
+
+                        startActivity(new Intent(getActivity(), ScanActivity.class));
+
+                    }
                 }else{
                     startActivity(new Intent(getActivity(), ScanActivity.class));
                 }

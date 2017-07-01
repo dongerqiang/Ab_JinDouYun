@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>点标记</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <style>
+        .marker {
+            color: #ff6600;
+            padding: 4px 10px;
+            border: 1px solid #fff;
+            white-space: nowrap;
+            font-size: 12px;
+            font-family: "";
+            background-color: #0066ff;
+        }
+    </style>
+    <script src="http://webapi.amap.com/maps?v=1.3&key=689bd89d963cfafa8591be1ea4ba9486"></script>
+    <!--<script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>-->
+</head>
+<body>
+    <div id="container"></div>
+    <!--<div id="tip"></div>-->
+
+    <script>
+        var marker, map = new AMap.Map("container", {
+            resizeEnable: true,
+            center: [116.397428, 39.90923],
+            mapStyle:'normal',
+            doubleClickZoom: true,
+            zoom: 11,
+        });
+        var lon;
+        var lat;
+        map.plugin('AMap.Geolocation', function() {
+            geolocation = new AMap.Geolocation({
+            enableHighAccuracy: true,//是否使用高精度定位，默认:true
+            timeout: 100000,          //超过10秒后停止定位，默认：无穷大
+            showButton: false,        //显示定位按钮，默认：true
+            buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+            zoomToAccuracy: true,      //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+            buttonPosition:'RB',
+            useNative:true
+        });
+            map.addControl(geolocation);
+            geolocation.getCurrentPosition();
+        AMap.event.addListener(geolocation, 'complete', onComplete);//返回定位信息
+        AMap.event.addListener(geolocation, 'error', onError);      //返回定位出错信息
+    });
+    //解析定位结果
+    function onComplete(data) {
+        var str=['定位成功'];
+        str.push('经度：' + data.position.getLng());
+        str.push('纬度：' + data.position.getLat());
+        str.push('精度：' + data.accuracy + ' 米');
+        str.push('是否经过偏移：' + (data.isConverted ? '是' : '否'));
+        lon=data.position.getLng();
+        lat=data.position.getLat();
+        <!--document.getElementById('tip').innerHTML = str.join('<br>');-->
+        window.test.locationFinish(data.position.getLng()+','+data.position.getLat());
+    }
+    //解析定位错误信息
+    function onError(data) {
+        <!--document.getElementById('tip').innerHTML = '定位失败'+data.message;-->
+        window.test.locationError('定位失败'+data.message);
+    }
+    AMap.event.addDomListener(document.getElementById('addMarker'), 'click', function() {
+        addMarker();
+    }, false);
+    <!--AMap.event.addDomListener(document.getElementById('updateMarker'), 'click', function() {-->
+        <!--marker && updateMarker();-->
+        <!--}, false);-->
+    AMap.event.addDomListener(document.getElementById('clearMarker'), 'click', function() {
+        if (marker) {
+            marker.setMap(null);
+            marker = null;
+        }
+    }, false);
+    // 实例化点标记
+    function addMarker() {
+        if (marker) {
+            return;
+        }
+        marker = new AMap.Marker({
+            icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+            position: [116.405467, 39.907761]
+        });
+        marker.setMap(map);
+    }
+    function addLocationMarker(lon, lat){
+        if (!marker) {
+            marker = new AMap.Marker({
+                icon: "http://lbsyun.baidu.com/jsdemo/img/fox.gif",
+                position: [lon, lat]
+            });
+            marker.setMap(map);
+        } else {
+            marker.setPosition([lon, lat]); //更新点标记位置
+        }
+        map.panTo([lon, lat]);
+    }
+    function updateMarker() {
+        // 自定义点标记内容
+        var markerContent = document.createElement("div");
+        // 点标记中的图标
+        var markerImg = document.createElement("img");
+        markerImg.className = "markerlnglat";
+        markerImg.src = "http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png";
+        markerContent.appendChild(markerImg);
+        // 点标记中的文本
+        var markerSpan = document.createElement("span");
+        markerSpan.className = 'marker';
+        markerSpan.innerHTML = "Hi，我换新装备啦！";
+        markerContent.appendChild(markerSpan);
+        marker.setContent(markerContent); //更新点标记内容
+        marker.setPosition([116.391467, 39.927761]); //更新点标记位置
+    }
+
+
+    //移动到指定位置
+    function moveCamera() {
+        map.panTo([lon,lat]);
+    }
+
+    function increaseMap() {
+        var zoom =map.getZoom();
+        map.setZoom(zoom+1);
+    }
+
+    function decreaseMap() {
+        var zoom =map.getZoom();
+        map.setZoom(zoom-1);
+    }
+</script>
+</body>
+</html>

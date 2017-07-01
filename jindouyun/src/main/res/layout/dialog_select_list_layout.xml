@@ -32,7 +32,15 @@
                 android:text="取消"
                 android:textColor="#333333"
                 android:textSize="14sp" />
-
+            <TextView
+                android:id="@+id/list_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:lines="1"
+                android:textStyle="bold"
+                android:text="title"/>
             <Button
                 android:id="@+id/confirmBtn"
                 android:layout_width="60dp"

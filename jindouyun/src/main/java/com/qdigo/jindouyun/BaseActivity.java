@@ -27,6 +27,7 @@ import butterknife.ButterKnife;
  *
  * @author wy
  */
+
 public abstract class BaseActivity extends AppCompatActivity {
     //当前的Context对象，方便内部类使用
     protected Context mContext;

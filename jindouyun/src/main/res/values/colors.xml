@@ -11,4 +11,7 @@
     <color name="blue_a1">#1b91e0</color>
     <color name="black_text">#000</color>
     <color name="half_black">#4f4f4f</color>
+    <color name="gray">#a8a8a8</color>
+    <color name="ru_bai_se">#e4fef8e6 </color>
+    <color name="blue">#1296db</color>
 </resources>

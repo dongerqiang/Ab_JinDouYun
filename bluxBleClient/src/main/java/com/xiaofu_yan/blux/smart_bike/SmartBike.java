@@ -12,12 +12,13 @@ public class SmartBike extends BlueGuard{
 
 	// Public types
 	public static class Delegate extends BlueGuard.Delegate {
-		public void smartBikeUpdateBattery(SmartBike smartBike, int energyLevel, float currentInAmpere, int batteryCapacity, int batteryChargeCounter) {};
-		public void smartBikeUpdateData(SmartBike smartBike, float tempterature, float speedInKmph, float mileageInKm) {};
-		public void smartBikeUpdateController(SmartBike smartBike, int ARS, int gear, boolean speedLimited, boolean cruise) {};
-		public void smartBikeUpdateMopedLevel(SmartBike smartBike, byte level, byte batteryType) {};
-		public void smartBikeUpdateControllerMode(SmartBike smartBike, byte mopedMode, byte electricMode) {};
-		public void smartBikeUpdateSineData(SmartBike smartBike, byte[] data) {};
+//		public void smartBikeUpdateBattery(SmartBike smartBike, int energyLevel, float currentInAmpere, int batteryCapacity, int batteryChargeCounter) {};
+//		public void smartBikeUpdateData(SmartBike smartBike, float tempterature, float speedInKmph, float mileageInKm) {};
+//		public void smartBikeUpdateController(SmartBike smartBike, int ARS, int gear, boolean speedLimited, boolean cruise) {};
+//		public void smartBikeUpdateMopedLevel(SmartBike smartBike, byte level, byte batteryType) {};
+//		public void smartBikeUpdateControllerMode(SmartBike smartBike, byte mopedMode, byte electricMode) {};
+//		public void smartBikeUpdateSineData(SmartBike smartBike, byte[] data) {};
+		public void smartBikeUpdateData(SmartBike smartBike,byte[] data){};
 	}
 
 	public enum BatteryType {
@@ -187,139 +188,140 @@ public class SmartBike extends BlueGuard{
 		
 		SmartBike.Delegate delegate = (SmartBike.Delegate)super.delegate;
 		if (delegate != null) {
-			if(18 == data.length) {
-				/*data[0] = (byte) 0x21;
-				data[1] = (byte) 0x24;
-				data[3] = (byte) data[3];*/
-				
-				/*data[2] = (byte) 0x02;
-				data[4] = (byte) 60;
-				data[5] = (byte) 0xf8;
-				data[6] = (byte) 22;
-				data[7] = (byte) 130;
-				data[8] = (byte) 10;*/
-				
-				/*data[2] = (byte) 0x84;
-				data[4] = (byte) 0x19;
-				data[5] = (byte) 0x00;
-				data[6] = (byte) 0x01;
-				data[7] = (byte) 0xF4;
-				data[8] = (byte) 0x0B;
-				data[9] = (byte) 0xB8;
-				data[10] = (byte) 0x09;
-				data[11] = (byte) 0xF6;
-				data[12] = (byte) 0x03;
-				data[13] = (byte) 0xE8;*/
-				
-				/*data[2] = (byte) 0x85;
-				data[4] = (byte) 0xff;
-				data[5] = (byte) 0xff;
-				data[6] = (byte) 0xff;
-				data[7] = (byte) 0xff;
-				data[8] = (byte) 0xff;
-				data[9] = (byte) 0xff;
-				data[10] = (byte) 0xff;
-				data[11] = (byte) 0xff;*/
-				
-				/*data[2] = (byte) 0x80;
-				data[4] = (byte) 0x02;
-				data[5] = (byte) 0x02;
-				data[6] = (byte) 0xff;
-				data[7] = (byte) 0x02;
-				data[8] = (byte) 0xff;
-				data[9] = (byte) 0x01;
-				data[10] = (byte) 0x55;
-				data[11] = (byte) 0x50;*/
-				
-				if(0x24 == data[1]) {
-					delegate.smartBikeUpdateSineData(this, data);
-				}
-				return;
-			}
-			
-			if(0 == this.nDeviceMode) {
-				int batteryADC = le2s(data, 3);
-				int temperatureADC = le2s(data, 5);
-				long speed = le2s(data, 7);
-				long mileage = le2l(data, 9);
-
-				batteryADC &= 0xffff;
-				temperatureADC &= 0xffff;
-				speed &= 0xffffffff;
-				mileage &= 0xffffffff;
-
-				float temperature = adc_get_temperature(temperatureADC);
-				speed = pulsesToMeter(mWheelDiameter, speed * 3600);
-				mileage = pulsesToMeter(mWheelDiameter, mileage * 100);
-
-				float batteryVoltage = adc_get_battery_voltage(batteryADC);
-				int capacity = battery_get_capacity(batteryVoltage, mBatteryType);
-
-				delegate.smartBikeUpdateData(this, temperature, speed / 1000, mileage / 1000);
-				delegate.smartBikeUpdateBattery(this, capacity, batteryVoltage, 999, 999);
-			}
-			else if ((data.length == 11) || (data.length == 13)) {
-				int chargeCounter = le2s(data, 1);
-				float speed = le2s(data, 3);
-				float mileage = le2s(data, 5);
-				float current = le2s(data, 7);
-				int batCap = data[9] & 0xff;
-				int temperature = data[10] & 0xff;				
-
-				int el = data[11] & 0xff;
-				int ars = (el >> 3) & 7;
-				int gear = (el >> 6) & 3;
-				el &= 7;
-
-				boolean speedLimited = (data[12] & 0x01) == 0 ? false : true;
-
-				speed *= 0.1;
-				mileage *= 0.1;
-				current *= 0.01;
-
-				delegate.smartBikeUpdateBattery(this, el, current, batCap, chargeCounter);
-				delegate.smartBikeUpdateController(this, ars, gear, speedLimited, false);
-				delegate.smartBikeUpdateData(this, temperature, speed, mileage);
-			}
-			else if ((data.length == 16) || (data.length == 17)) {
-				int time_counter = le2l(data, 1);
-				int hall_counter = le2l(data, 5);
-				int current_counter = le2l(data, 9);				
-				Log.w("jinghui", "[RAW  time:" + time_counter + "]" + " [hall:" + hall_counter + "]" + " [current:" + current_counter + "]");
-				
-				float speed = convert_speed(time_counter, hall_counter);
-				float mileage = convert_mileage(hall_counter);
-				float current = convert_current(time_counter, current_counter);
-				int el = convert_el(time_counter, current_counter);
-				
-				int batCap = data[13] & 0xff;
-				Log.w("jinghui", "[RAW  battery:" + batCap + "]" + " [fault:" + data[14] + "]" + " [state:" + data[15] + "]");
-
-				int ars = data[14] & 0x0f;
-				//int ars = convert_ars(data[14]);
-				
-				byte mopedMode = (byte)((data[14] & 0x10) == 0 ? 0 : 1);
-				byte electricMode = (byte)((data[14] & 0x20) == 0 ? 0 : 1);
-				delegate.smartBikeUpdateControllerMode(this, mopedMode, electricMode);
-				
-				int gear = data[15] & 0x03;
-				boolean speedLimited = (data[15] & 0x04) == 0 ? false : true;
-				boolean cruise = (data[15] & 0x08) == 0 ? false : true;
-
-				mLastTimeCounter = time_counter;
-				mLastHallCounter = hall_counter;
-				mLastCurrentCounter = current_counter;
-				
-				if(data.length == 17) {
-					byte batteryType = (byte) (data[16] & 0x08);
-					byte mopedLevel = (byte) (data[16] & 0x07);
-					delegate.smartBikeUpdateMopedLevel(this, mopedLevel, batteryType);
-				}
-				
-				delegate.smartBikeUpdateBattery(this, el, current, batCap, 0/*chargeCounter*/);
-				delegate.smartBikeUpdateController(this, ars, gear, speedLimited, cruise);
-				delegate.smartBikeUpdateData(this, 0/*temperature*/, speed, mileage);
-			}
+			delegate.smartBikeUpdateData(this, data);
+//			if(18 == data.length) {
+//				*//*data[0] = (byte) 0x21;
+//				data[1] = (byte) 0x24;
+//				data[3] = (byte) data[3];*//*
+//
+//				*//*data[2] = (byte) 0x02;
+//				data[4] = (byte) 60;
+//				data[5] = (byte) 0xf8;
+//				data[6] = (byte) 22;
+//				data[7] = (byte) 130;
+//				data[8] = (byte) 10;*//*
+//
+//				*//*data[2] = (byte) 0x84;
+//				data[4] = (byte) 0x19;
+//				data[5] = (byte) 0x00;
+//				data[6] = (byte) 0x01;
+//				data[7] = (byte) 0xF4;
+//				data[8] = (byte) 0x0B;
+//				data[9] = (byte) 0xB8;
+//				data[10] = (byte) 0x09;
+//				data[11] = (byte) 0xF6;
+//				data[12] = (byte) 0x03;
+//				data[13] = (byte) 0xE8;*//*
+//
+//				*//*data[2] = (byte) 0x85;
+//				data[4] = (byte) 0xff;
+//				data[5] = (byte) 0xff;
+//				data[6] = (byte) 0xff;
+//				data[7] = (byte) 0xff;
+//				data[8] = (byte) 0xff;
+//				data[9] = (byte) 0xff;
+//				data[10] = (byte) 0xff;
+//				data[11] = (byte) 0xff;*//*
+//
+//				*//*data[2] = (byte) 0x80;
+//				data[4] = (byte) 0x02;
+//				data[5] = (byte) 0x02;
+//				data[6] = (byte) 0xff;
+//				data[7] = (byte) 0x02;
+//				data[8] = (byte) 0xff;
+//				data[9] = (byte) 0x01;
+//				data[10] = (byte) 0x55;
+//				data[11] = (byte) 0x50;*//*
+//
+//				if(0x24 == data[1]) {
+//					delegate.smartBikeUpdateSineData(this, data);
+//				}
+//				return;
+//			}
+//
+//			if(0 == this.nDeviceMode) {
+//				int batteryADC = le2s(data, 3);
+//				int temperatureADC = le2s(data, 5);
+//				long speed = le2s(data, 7);
+//				long mileage = le2l(data, 9);
+//
+//				batteryADC &= 0xffff;
+//				temperatureADC &= 0xffff;
+//				speed &= 0xffffffff;
+//				mileage &= 0xffffffff;
+//
+//				float temperature = adc_get_temperature(temperatureADC);
+//				speed = pulsesToMeter(mWheelDiameter, speed * 3600);
+//				mileage = pulsesToMeter(mWheelDiameter, mileage * 100);
+//
+//				float batteryVoltage = adc_get_battery_voltage(batteryADC);
+//				int capacity = battery_get_capacity(batteryVoltage, mBatteryType);
+//
+//				delegate.smartBikeUpdateData(this, temperature, speed / 1000, mileage / 1000);
+//				delegate.smartBikeUpdateBattery(this, capacity, batteryVoltage, 999, 999);
+//			}
+//			else if ((data.length == 11) || (data.length == 13)) {
+//				int chargeCounter = le2s(data, 1);
+//				float speed = le2s(data, 3);
+//				float mileage = le2s(data, 5);
+//				float current = le2s(data, 7);
+//				int batCap = data[9] & 0xff;
+//				int temperature = data[10] & 0xff;
+//
+//				int el = data[11] & 0xff;
+//				int ars = (el >> 3) & 7;
+//				int gear = (el >> 6) & 3;
+//				el &= 7;
+//
+//				boolean speedLimited = (data[12] & 0x01) == 0 ? false : true;
+//
+//				speed *= 0.1;
+//				mileage *= 0.1;
+//				current *= 0.01;
+//
+//				delegate.smartBikeUpdateBattery(this, el, current, batCap, chargeCounter);
+//				delegate.smartBikeUpdateController(this, ars, gear, speedLimited, false);
+//				delegate.smartBikeUpdateData(this, temperature, speed, mileage);
+//			}
+//			else if ((data.length == 16) || (data.length == 17)) {
+//				int time_counter = le2l(data, 1);
+//				int hall_counter = le2l(data, 5);
+//				int current_counter = le2l(data, 9);
+//				Log.w("jinghui", "[RAW  time:" + time_counter + "]" + " [hall:" + hall_counter + "]" + " [current:" + current_counter + "]");
+//
+//				float speed = convert_speed(time_counter, hall_counter);
+//				float mileage = convert_mileage(hall_counter);
+//				float current = convert_current(time_counter, current_counter);
+//				int el = convert_el(time_counter, current_counter);
+//
+//				int batCap = data[13] & 0xff;
+//				Log.w("jinghui", "[RAW  battery:" + batCap + "]" + " [fault:" + data[14] + "]" + " [state:" + data[15] + "]");
+//
+//				int ars = data[14] & 0x0f;
+//				//int ars = convert_ars(data[14]);
+//
+//				byte mopedMode = (byte)((data[14] & 0x10) == 0 ? 0 : 1);
+//				byte electricMode = (byte)((data[14] & 0x20) == 0 ? 0 : 1);
+//				delegate.smartBikeUpdateControllerMode(this, mopedMode, electricMode);
+//
+//				int gear = data[15] & 0x03;
+//				boolean speedLimited = (data[15] & 0x04) == 0 ? false : true;
+//				boolean cruise = (data[15] & 0x08) == 0 ? false : true;
+//
+//				mLastTimeCounter = time_counter;
+//				mLastHallCounter = hall_counter;
+//				mLastCurrentCounter = current_counter;
+//
+//				if(data.length == 17) {
+//					byte batteryType = (byte) (data[16] & 0x08);
+//					byte mopedLevel = (byte) (data[16] & 0x07);
+//					delegate.smartBikeUpdateMopedLevel(this, mopedLevel, batteryType);
+//				}
+//
+//				delegate.smartBikeUpdateBattery(this, el, current, batCap, 0/*chargeCounter*/);
+//				delegate.smartBikeUpdateController(this, ars, gear, speedLimited, cruise);
+//				delegate.smartBikeUpdateData(this, 0/*temperature*/, speed, mileage);
+//			}
 		}
 	}
 	

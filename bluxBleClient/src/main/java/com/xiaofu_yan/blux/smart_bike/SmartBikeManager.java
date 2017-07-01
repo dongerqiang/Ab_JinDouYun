@@ -17,8 +17,9 @@ public class SmartBikeManager extends BlueGuardManager {
 	
 	// Public types
 	public static class Delegate {
-		public void smartBikeManagerFoundSmartBike(String identifier, String name, int nMode) {}
+//		public void smartBikeManagerFoundSmartBike(String identifier, String name, int nMode) {}
 		public void smartBikeManagerGotSmartBike(SmartBike smartBike) {}
+		public void smartBikeManagerFoundSmartBike(String identifier, String name) {}
 	}
 
 	public Delegate delegate;	
@@ -58,11 +59,12 @@ public class SmartBikeManager extends BlueGuardManager {
 
 	protected void onFoundBlueGuard(String identifier, String name) {
 		if(delegate != null) {
-			if(mCurrentScanMode.equalsIgnoreCase(SMART_BIKE_BROADCAST_UUID)) {
-				delegate.smartBikeManagerFoundSmartBike(identifier, name, 1);
-			} else {
-				delegate.smartBikeManagerFoundSmartBike(identifier, name, 0);
-			}
+//			if(mCurrentScanMode.equalsIgnoreCase(SMART_BIKE_BROADCAST_UUID)) {
+//				delegate.smartBikeManagerFoundSmartBike(identifier, name, 1);
+//			} else {
+//				delegate.smartBikeManagerFoundSmartBike(identifier, name, 0);
+//			}
+			delegate.smartBikeManagerFoundSmartBike(identifier, name);
 		}
 	}
 

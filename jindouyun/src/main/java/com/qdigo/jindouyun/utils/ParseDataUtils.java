@@ -43,7 +43,7 @@ public class ParseDataUtils {
 //        int p=(int) SPUtils.get(mContext,Constant.JI_DUI_SHU_KEY,23);
 //        float zhiJin =16*0.0333f;
 //        int p = 23;
-        float speed = (float) ((hallCount*7200*circumference*Math.PI)/(6*p*1000));
+        float speed = (float) ((hallCount*7200*circumference*Math.PI)/(6*p*1000*3));
         String dot2String = dot2String(speed);
         Log.w(TAG,"parseSpeed == "+dot2String);
         System.out.print("parseSpeed == "+dot2String);
@@ -148,6 +148,11 @@ public class ParseDataUtils {
         return dot2String;
     }
 
+    public static String parseBattery(byte[] data){
+        //电量
+        int battery = data[4] & 0xff;
+        return battery+ "%";
+    }
     /**
      * 解析电流
      * @param data
@@ -230,5 +235,35 @@ public class ParseDataUtils {
          return filesize;
      }
 
+    public static String dot22String(float number){
+        DecimalFormat df = new DecimalFormat("0.0");//格式化小数，不足的补0
+        String filesize = df.format(number);//返回的是String类型的
+        return filesize;
+    }
 
+    public static String kmToMi(String km){
+        double v = Double.parseDouble(km);
+        v = v*0.621371f;
+        String s = dot2String((float) v);
+        return s;
+    }
+
+    public static String miToKm(String mi){
+        double m = Double.parseDouble(mi);
+        m = m/0.621371f;
+        String s = dot2String((float) m);
+        return s;
+    }
+
+    /**
+     * 格式化时间
+     * @param time
+     * @return
+     */
+    public static String FormatMiss(long time){
+        String hh=time/3600>9?time/3600+"":"0"+time/3600;
+        String mm=(time% 3600)/60>9?(time% 3600)/60+"":"0"+(time% 3600)/60;
+        String ss=(time% 3600) % 60>9?(time% 3600) % 60+"":"0"+(time% 3600) % 60;
+        return hh+":"+mm+":"+ss;
+    }
 }

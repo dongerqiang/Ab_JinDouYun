@@ -197,7 +197,7 @@ public class ScanActivity extends ListActivity {
 	// SmartGuardManager.Delegate
 	private class SmartBikeManagerDelegate extends SmartBikeManager.Delegate {
 		@Override
-		public void smartBikeManagerFoundSmartBike(String identifier, String name, int nMode) {
+		public void smartBikeManagerFoundSmartBike(String identifier, String name) {
 			Log.w("deq","identifier = "+identifier+", name = "+name);
 			DeviceDB.Record rec = new DeviceDB.Record(name, identifier, null);
 			mDeviceList.addDevice(rec);

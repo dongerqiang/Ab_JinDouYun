@@ -30,7 +30,8 @@ public class DeviceNotes {
 	public final String MOTOR_DANGWEI = "motor_dangwei_key";//档位
 	public final String USE_DEVICE_KEY = "use_device_key";
 	public final String PASSWORD_KEY ="password_key";
-
+	public final String SPEED_DANWEI_KEY ="speed_dan_wei_key";
+	public final String KG_KEY ="kg_key";
 	SettingShareData set;
 	private Context ctx;
 	DeviceHistory deviceHistory = new DeviceHistory();
@@ -113,18 +114,18 @@ public class DeviceNotes {
 	}
 	
 	
-	public int optWheelR(boolean setOrGet, int value){
+	public float optWheelR(boolean setOrGet, float value){
 		if (setOrGet) {
 			set.setKeyValue(WHEEL_R_KEY, value);
 		}
-		return set.getKeyValueInt(WHEEL_R_KEY, 16);
+		return set.getKeyValueFloat(WHEEL_R_KEY);
 	}
 	
 	public int optMotorJds(boolean setOrGet, int value){
 		if (setOrGet) {
 			set.setKeyValue(MOTOR_JDS_KEY, value);
 		}
-		return set.getKeyValueInt(MOTOR_JDS_KEY, 23);
+		return set.getKeyValueInt(MOTOR_JDS_KEY, 30);
 	}
 	
 	public int opeMotorVol(boolean setOrGet, int value){
@@ -151,7 +152,21 @@ public class DeviceNotes {
 	public void saveUseDevice(DeviceDB.Record record){
 		set.setKeyValue(DEVICE_SEAT_KEY, new Gson().toJson(record));
 	}
-	
+	public String speedDanWei(boolean setOrGet, String value){
+		if (setOrGet) {
+			set.setKeyValue(SPEED_DANWEI_KEY, value);
+		}
+		return set.getKeyValueString(SPEED_DANWEI_KEY, "km");
+	}
+
+	public int optKg(boolean setOrGet, int value){
+		if (setOrGet) {
+			set.setKeyValue(KG_KEY, value);
+		}
+		return set.getKeyValueInt(KG_KEY, 60);
+	}
+
+
 	public void delDeviceHistory(String mac){
 		if(deviceHistory != null){
 			
@@ -176,8 +191,97 @@ public class DeviceNotes {
 	}
 	
 	public float getWheel(){
-		  switch(optWheelR(false,1)) {
-          /*case 10: return 0.8007f;
+		float v = optWheelR(false, 1);
+		float wheel ;
+		if (v==10){
+			wheel=0.797941f;
+		}else if (v==10.5){
+			wheel=0.83783805f;
+		}else if (v==11){
+			wheel=0.8777351f;
+		}else if (v==11.5){
+			wheel=0.91763215f;
+		}else if (v==12){
+			wheel=0.9575292f;
+		}else if (v==12.5){
+			wheel=0.99742625f;
+		}else if (v==13){
+			wheel=1.0373233f;
+		}else if (v==13.5){
+			wheel=1.07722035f;
+		}else if (v==14){
+			wheel=1.1171174f;
+		}else if (v==14.5){
+			wheel=1.15701445f;
+		}else if (v==15){
+			wheel=1.1969115f;
+		}else if (v==15.5){
+			wheel=1.23680855f;
+		}else if (v==16){
+			wheel=1.2767056f;
+		}else if (v==16.5){
+			wheel=1.31660265f;
+		}else if (v==17){
+			wheel=1.3564997f;
+		}else if (v==17.5){
+			wheel=1.39639675f;
+		}else if (v==18){
+			wheel=1.4362938f;
+		}else if (v==18.5){
+			wheel=1.47619085f;
+		}else if (v==19){
+			wheel=1.5160879f;
+		}else if (v==19.5){
+			wheel=1.55598495f;
+		}else if (v==20){
+			wheel=1.595882f;
+		}else if (v==20.5){
+			wheel=1.63577905f;
+		}else if (v==21){
+			wheel=1.6756761f;
+		}else if (v==21.5){
+			wheel=1.71557315f;
+		}else if (v==22){
+			wheel=1.7554702f;
+		}else if (v==22.5){
+			wheel=1.79536725f;
+		}else if (v==23){
+			wheel=1.8352643f;
+		}else if (v==23.5){
+			wheel=1.87516135f;
+		}else if (v==24){
+			wheel=1.9150584f;
+		}else if (v==24.5){
+			wheel=1.95495545f;
+		}else if (v==25){
+			wheel=1.9948525f;
+		}
+		else if (v==25.5){
+			wheel=2.03474955f;
+		}else if (v==26){
+			wheel=2.0746466f;
+		}else if (v==26.5){
+			wheel=2.11454365f;
+		}else if (v==27){
+			wheel=2.1544407f;
+		}else if (v==27.5){
+			wheel=2.19433775f;
+		}else if (v==28){
+			wheel=2.2342348f;
+		}else if (v==28.5){
+			wheel=2.27413185f;
+		}else if (v==29){
+			wheel=2.3140289f;
+		}else if (v==29.5){
+			wheel=2.35392595f;
+		}else if (v==30){
+			wheel=2.393823f;
+		}else{
+			wheel = 1.2767056f;
+		}
+		return  wheel;
+		/*switch() {
+          *//*case 10: return 0.8007f;
           case 12: return 0.9577f;
           case 14: return 1.1147f;
           case 16: return 1.2717f;
@@ -186,7 +290,7 @@ public class DeviceNotes {
           case 22: return 1.7584f;
           case 24: return 1.9154f;
           case 26: return 2.0724f;
-          default: return 1.2717f;*/
+          default: return 1.2717f;*//*
 			  case 10: return 0.3333f;
 			  case 12: return 0.3999f;
 			  case 14: return 0.4666f;
@@ -197,7 +301,7 @@ public class DeviceNotes {
 			  case 24: return 0.7999f;
 			  case 26: return 0.8666f;
 			  default: return 0.5333f;
-		  }
+		  }*/
 	}
 
 }

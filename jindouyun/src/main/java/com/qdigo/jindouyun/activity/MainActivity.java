@@ -141,7 +141,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
     }
     class BleStateReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context ctx, Intent intent) {
             if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
@@ -154,18 +153,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
                     broadFragment(false);
                 }
             }else if(intent.getAction().equals(BroadcastUtils.MILEAGE_ACTION)){
-                if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)){
+                /*if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)){
                     String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_KEY);
                     mile = km;
-                }else if(intent.hasExtra(BroadcastUtils.SPEED_VALUE_KEY)){
+                }*/ if(intent.hasExtra(BroadcastUtils.SPEED_VALUE_KEY)){
                     String speeddKm = intent.getStringExtra(BroadcastUtils.SPEED_VALUE_KEY);
                     speed=speeddKm;
+
                 }else if(intent.hasExtra(BroadcastUtils.DANGWEI_KEY)){
                     int dangWei = intent.getIntExtra(BroadcastUtils.DANGWEI_KEY,1);
                     dangwei =dangWei;
                 }else if(intent.hasExtra(BroadcastUtils.ARS_CODE_KEY)){
                     String ars = intent.getStringExtra(BroadcastUtils.ARS_CODE_KEY);
                     error = ars;
+                }else if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY)){
+                    String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY);
+                    mile =km;
+                }else if(intent.hasExtra(BroadcastUtils.RUNNING_TIME_KEY)){
+                    //运行时间
+                    String runningtime = intent.getStringExtra(BroadcastUtils.RUNNING_TIME_KEY);
+                    time = runningtime;
                 }
                 broadFragment(true);
             }else if(intent.getAction().equals(BroadcastUtils.BLE_CONNECTED)){
@@ -515,7 +522,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
             if (timer == null) {
                 timer = new Timer();
             }
-            timer.schedule(new ScanTask(), 10 * 1000);
+            timer.schedule(new ScanTask(), 30 * 1000);
             Log.w(TAG,"scanBluetooth isKeyDirect = "+isKeyDirect);
             mBleSdkUtils.scanBleDevice(new MyScanListener() {
 
@@ -983,7 +990,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         Log.w(TAG,"dealBluetoothData ----\n"+ Arrays.toString(data));
         // 模拟
         String mile = ParseDataUtils.parseMile(data); //km
-        String time = "12:55:23";
+        String time = "00:00:00";
         String error =ParseDataUtils.parseARS(data);
         String speed = ParseDataUtils.parseSpeed(this,data);//  km/h
         int dangwei = ParseDataUtils.parseDangWei(data);
@@ -1031,7 +1038,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     }
     public void broadFragment(boolean connect){
         Log.w(TAG,"broadFragment ---- connect = "+connect);
-        this.connect =connect;/*
+        this.connect =connect;
+        /*com.qdigo.jindouyun.utils.DeviceDB.Record rec = new com.qdigo.jindouyun.utils.DeviceDB.Record("", "", "");
+        if(!connect){
+            com.qdigo.jindouyun.utils.DeviceDB.save(this,rec);
+        }*/
+        /*
         mile = new Random().nextInt(100)+" km";
         time = "33:33:33";
         error= "未知错误";

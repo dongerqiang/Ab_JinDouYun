@@ -3,21 +3,20 @@ package com.qdigo.deq.testapplication;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,6 +30,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -90,6 +90,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        Button mBtnShare = (Button)findViewById(R.id.btn_share);
+        mBtnShare.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String pakName = "";
+                Intent intent = new Intent(Intent.ACTION_SEND); // 启动分享发送的属性
+                intent.setType("text/plain"); // 分享发送的数据类型
+                Random random = new Random();
+                int i = random.nextInt(3);
+                switch (i )
+                {
+                    case 0:
+                        pakName = "com.mobileqq";  //qq空间
+                        break;
+                    case 1:
+                        pakName = "com.tencent.WBlog";  //腾讯微博
+                        break;
+                    case 2:
+                        pakName = "com.tencent.mm";  //微信
+                        break;
+
+
+                    default:
+                        break;
+                }
+                intent.setPackage(pakName);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "这里是分享主题"); // 分享的主题
+                intent.putExtra(Intent.EXTRA_TEXT, "这里是分享内容"); // 分享的内容
+                startActivity(Intent.createChooser(intent, "ccc"));// 目标应用选择对话框的标题;
+            }
+        });
     }
 
     private void populateAutoComplete() {

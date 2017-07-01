@@ -223,8 +223,14 @@ public class BlueGuardActivity extends Activity {
 
 	// SmartGuardManager delegate
 	class SmartBikeManagerDelegate extends SmartBikeManager.Delegate {
+//		@Override
+//		public void smartBikeManagerFoundSmartBike(String identifier, String name, int nMode) {
+//		}
+
+
 		@Override
-		public void smartBikeManagerFoundSmartBike(String identifier, String name, int nMode) {
+		public void smartBikeManagerFoundSmartBike(String identifier, String name) {
+
 		}
 
 		@Override

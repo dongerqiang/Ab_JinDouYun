@@ -75,7 +75,7 @@ public class SettingShareData {
 		return read.getLong(key, index);
 	}
 	public float getKeyValueFloat(String key){
-		return read.getFloat(key, 0f);
+		return read.getFloat(key, 30f);
 	}
 	
 	

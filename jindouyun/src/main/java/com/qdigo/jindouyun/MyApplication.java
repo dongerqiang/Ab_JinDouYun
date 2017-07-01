@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.qdigo.jindouyun.blesdkhelp.BleInterface;
 import com.qdigo.jindouyun.utils.BroadcastUtils;
 import com.qdigo.jindouyun.utils.DeviceNotes;
@@ -40,6 +41,8 @@ public class MyApplication extends Application {
         int[] displayScreenResolution = getDisplayScreenResolution(app);
         heightPixels = displayScreenResolution[1];
         widthPixels = displayScreenResolution[0];
+        // 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
+        SDKInitializer.initialize(this);
     }
 
     public  int[] getDisplayScreenResolution(Context context) {

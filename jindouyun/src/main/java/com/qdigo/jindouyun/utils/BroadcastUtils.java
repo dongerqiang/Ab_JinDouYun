@@ -16,6 +16,7 @@ public class BroadcastUtils {
 	public static final String MILEAGE_VALUE_INCREASE_KEY = "mileage_increase_value_key";
 	public static final String DANGWEI_KEY ="dang_wei_key";
 	public static final String ARS_CODE_KEY ="ars_code_key";
+	public static final String RUNNING_TIME_KEY="running_time_key";
 	private Context ctx;
 	private static BroadcastUtils broadcastUtils;
 	public static BroadcastUtils getInstance(){
@@ -46,7 +47,7 @@ public class BroadcastUtils {
 		ctx.sendBroadcast(intent);
 	}
 	
-	public void sendBattery(float value){
+	public void sendBattery(String value){
 		Intent intent = new Intent(MILEAGE_ACTION);
 		intent.putExtra(BATTERY_VALUE_KEY, value);
 		ctx.sendBroadcast(intent);
@@ -67,6 +68,12 @@ public class BroadcastUtils {
 	public void sendArs(String ars) {
 		Intent intent = new Intent(MILEAGE_ACTION);
 		intent.putExtra(ARS_CODE_KEY, ars);
+		ctx.sendBroadcast(intent);
+	}
+
+	public void sendMileageRunningTime(String time){
+		Intent intent = new Intent(MILEAGE_ACTION);
+		intent.putExtra(RUNNING_TIME_KEY, time);
 		ctx.sendBroadcast(intent);
 	}
 }

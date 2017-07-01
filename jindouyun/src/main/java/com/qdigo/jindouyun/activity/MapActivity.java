@@ -1,13 +1,14 @@
 package com.qdigo.jindouyun.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.util.Log;
-import android.view.View;
+import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -24,19 +25,77 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.qdigo.jindouyun.BaseActivity;
 import com.qdigo.jindouyun.R;
-import com.qdigo.jindouyun.view.WaveView;
+import com.qdigo.jindouyun.utils.BroadcastUtils;
+import com.qdigo.jindouyun.utils.ParseDataUtils;
 
 import butterknife.Bind;
+import butterknife.OnClick;
+
+import static com.amap.api.maps.AMap.LOCATION_TYPE_LOCATE;
+import static com.amap.api.maps.AMap.LOCATION_TYPE_MAP_ROTATE;
+import static com.qdigo.jindouyun.MyApplication.app;
 
 public class MapActivity extends BaseActivity implements LocationSource, AMapLocationListener {
     //view
-    @Bind(R.id.waveView)
-    WaveView mWaveView;
     @Bind(R.id.mMapView)
     MapView mapView;
+    @Bind(R.id.running_time)
+    TextView mRunningTime;
+    @Bind(R.id.total_mile)
+    TextView mTotalMile;
+    @Bind(R.id.current_speed)
+    TextView mCurrentSpeed;
+    private int currentMode;
 
+    @OnClick(R.id.iv_increase)
+    public void increase(){
+        zoomLv = aMap.getCameraPosition().zoom;
+        zoomLv += 1.2f;
+
+        if (zoomLv > aMap.getMaxZoomLevel()) {
+            zoomLv = aMap.getMaxZoomLevel();
+        }
+        Log.w(TAG,"MAX LEVEL == "+aMap.getMaxZoomLevel());
+        aMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLv),300,null);
+    }
+
+    @OnClick(R.id.iv_decrease)
+    public void decrease(){
+        zoomLv = aMap.getCameraPosition().zoom;
+        zoomLv -= 1.2f;
+        if (zoomLv < aMap.getMinZoomLevel()) {
+            zoomLv = aMap.getMinZoomLevel();
+        }
+        aMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLv),300,null);
+    }
+    boolean changeCamera = false;
+    boolean typeLocal = false;
+    @OnClick(R.id.iv_position)
+    public void position(){
+//        startPostion();
+        if(changeCamera){
+            //移动视角
+            if(currentPosition == null) return;
+            aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(currentPosition, 18, 0, 0)),500,null);
+            aMap.setMyLocationType(LOCATION_TYPE_LOCATE);
+            currentMode =LOCATION_TYPE_LOCATE;
+            changeCamera = false;
+        }else{
+            //没移动视角
+            if(currentMode == LOCATION_TYPE_LOCATE){
+                //设置旋转
+                aMap.setMyLocationType(LOCATION_TYPE_MAP_ROTATE);
+                currentMode =LOCATION_TYPE_MAP_ROTATE;
+            }else if(currentMode == AMap.LOCATION_TYPE_MAP_ROTATE){
+                aMap.setMyLocationType(LOCATION_TYPE_LOCATE);
+                currentMode =LOCATION_TYPE_LOCATE;
+            }
+
+        }
+
+    }
     private AMap aMap;
-    private float zoomLv = 17;
+    private float zoomLv = 16;
     //声明AMapLocationClient类对象
     public AMapLocationClient mLocationClient = null;
 
@@ -50,39 +109,61 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
 
 
     //    private DiffuseView diffuseView;
-
+    BleStateReceiver bleStateReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_map);
         setContentViewWithDefaultTitle(R.layout.activity_map,"车辆位置");
-//        diffuseView = (DiffuseView) findViewById(R.id.diffuseView);
-//        diffuseView.start();
+        registerReceiver(bleStateReceiver = new BleStateReceiver(), new IntentFilter(BroadcastUtils.MILEAGE_ACTION));
 
 
 
         mapView.onCreate(savedInstanceState);
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(currentPosition == null) return;
-                aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(currentPosition, 18, 0, 0)),1500,null);
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            }
-        });
     }
 
+    class BleStateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context ctx, Intent intent) {
+            if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
+                int state = intent.getIntExtra(BroadcastUtils.KEY_BLE_STATE, 0);
+                if(state ==1){
+                    app.showToast("已连接");
+                }else{
+                    app.showToast("连接失败");
+                }
+            }else if(intent.getAction().equals(BroadcastUtils.MILEAGE_ACTION)){
+                if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)){
+                    //总里程
+                    String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_KEY);
+                    String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
+                    if("km".equalsIgnoreCase(kmDanwei)){
+                        mTotalMile.setText(km);
+                    }else{
+                        String miToKm = ParseDataUtils.kmToMi(km);
+                        mTotalMile.setText(miToKm);
+                    }
+                } if(intent.hasExtra(BroadcastUtils.SPEED_VALUE_KEY)){
+                    //速度
+                    String speeddKm = intent.getStringExtra(BroadcastUtils.SPEED_VALUE_KEY);
+                    String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
+                    if("km".equalsIgnoreCase(kmDanwei)){
+                        mCurrentSpeed.setText(speeddKm);
+                    }else{
+                        String miToKm = ParseDataUtils.kmToMi(speeddKm);
+                        mCurrentSpeed.setText(miToKm);
+                    }
+                }else if(intent.hasExtra(BroadcastUtils.RUNNING_TIME_KEY)){
+                    //runningtime
+                    String runningtime = intent.getStringExtra(BroadcastUtils.RUNNING_TIME_KEY);
+                    mRunningTime.setText(runningtime);
+                }
+            }
+        }
+
+    }
     private void init() {
-        //init waveview
-        mWaveView = (WaveView) findViewById(R.id.waveView);
-        mWaveView.setDuration(5000);
-        mWaveView.setStyle(Paint.Style.FILL);
-        mWaveView.setColor(Color.parseColor("#FF0000"));
-        mWaveView.setInterpolator(new LinearOutSlowInInterpolator());
-        mWaveView.start();
 
         if (aMap == null) {
             aMap = mapView.getMap();
@@ -93,17 +174,31 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
     private void setUpMap() {
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         myLocationStyle.myLocationIcon(BitmapDescriptorFactory
-                .fromResource(R.drawable.stable_cluster_marker_one_select));// 设置小蓝点的图标
+                .fromResource(R.drawable.location_marker));// 设置小蓝点的图标
+        myLocationStyle.strokeColor(Color.argb(0, 250, 180, 70));// 设置圆形的边框颜色
+        myLocationStyle.strokeWidth(5f);
+        myLocationStyle.radiusFillColor(Color.argb(0x90, 83, 126, 220));// 设置圆形的填充颜色
         aMap.setMyLocationStyle(myLocationStyle);
-
         aMap.setLocationSource(this);// 设置定位监听
         aMap.getUiSettings().setMyLocationButtonEnabled(false);// 设置默认定位按钮是否显示
         aMap.getUiSettings().setScaleControlsEnabled(false);
         aMap.getUiSettings().setZoomControlsEnabled(false);
         aMap.getUiSettings().setCompassEnabled(false);
+        aMap.getUiSettings().setCompassEnabled(true);
         aMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
         // 设置定位的类型为定位模式 ，可以由定位、跟随或地图根据面向方向旋转几种
-        aMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+        aMap.setMyLocationType(LOCATION_TYPE_LOCATE);
+        currentMode = LOCATION_TYPE_LOCATE;
+        aMap.setOnCameraChangeListener(new AMap.OnCameraChangeListener(){
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                changeCamera =true;
+            }
+
+            @Override
+            public void onCameraChangeFinish(CameraPosition cameraPosition) {
+            }
+        });
     }
 
     @Override
@@ -114,10 +209,7 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
         if(null != mLocationClient){
             mLocationClient.onDestroy();
         }
-//        if(diffuseView !=null){
-//            diffuseView.stop();
-//            diffuseView =null;
-//        }
+        unregisterReceiver(bleStateReceiver);
     }
 
     @Override
@@ -198,7 +290,7 @@ public class MapActivity extends BaseActivity implements LocationSource, AMapLoc
                 Point center = projection.toScreenLocation(currentPosition);
                 if(!isFirst){
                     isFirst = true;
-                    aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(currentPosition, 16, 0, 0)),1500,null);
+                    aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(currentPosition, 18, 0, 0)),500,null);
                 }
 
             } else {

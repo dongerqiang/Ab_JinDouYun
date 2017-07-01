@@ -1,5 +1,6 @@
 package com.qdigo.jindouyun.fragment;
 
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +13,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,20 +20,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.Chronometer;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qdigo.jindouyun.R;
+import com.qdigo.jindouyun.activity.BaiduMapActivity;
 import com.qdigo.jindouyun.activity.MainActivity;
+import com.qdigo.jindouyun.activity.MapActivity;
+import com.qdigo.jindouyun.utils.DialogCallback;
+import com.qdigo.jindouyun.utils.DialogUtils;
+import com.qdigo.jindouyun.utils.ParseDataUtils;
 import com.qdigo.jindouyun.view.CompassView;
+import com.xw.repo.BubbleSeekBar;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -51,15 +53,16 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
     private TextView connectout;
     private ImageView map;
     private TextView mileTV;
-    private Chronometer timeTV;
+    private TextView timeTV;
     private LinearLayout connetTips;
-    private Spinner spinner;
+//    private Spinner spinner;
     private TextView dangwei3;
     private TextView dangwei2;
     private TextView dangwei1;
     private ImageView compass;
     private CheckBox screenOn;
-    private SeekBar progress;
+    private BubbleSeekBar progress;
+    private TextView danWei;
 
 
     @Override
@@ -70,10 +73,11 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         connetTips = (LinearLayout) inflate.findViewById(R.id.connet_tips);
         mCompassView = (CompassView) inflate.findViewById(R.id.compass);
         mileTV = (TextView) inflate.findViewById(R.id.mile);
-        timeTV = (Chronometer) inflate.findViewById(R.id.time);
-        progress = (SeekBar) inflate.findViewById(R.id.progress);
+        timeTV = (TextView) inflate.findViewById(R.id.time);
+        progress = (BubbleSeekBar) inflate.findViewById(R.id.progress);
+        danWei = (TextView) inflate.findViewById(R.id.tv_danwei);
         problem = (TextView) inflate.findViewById(R.id.problem);
-        spinner = (Spinner)inflate.findViewById(R.id.spinner);
+//        spinner = (Spinner)inflate.findViewById(R.id.spinner);
         map = (ImageView) inflate.findViewById(R.id.map);
 //        dangwei3 = (TextView) inflate.findViewById(R.id.tv_dangwei3);
 //        dangwei2 = (TextView) inflate.findViewById(R.id.tv_dangwei2);
@@ -83,6 +87,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
 
         processData(activity.mile,activity.time,activity.error,activity.speed,activity.dangwei);
         connectNotify(((MainActivity)(getActivity())).connect);
+
         initListener();
 //        String sensitive = app.deviceNotes.opeMotorDang(false, "低");
 //        int vibrationLevel = 1;
@@ -115,7 +120,24 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         dangwei1.setOnClickListener(this);
         /*dangwei2.setOnClickListener(this);
         dangwei3.setOnClickListener(this);*/
-        progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        progress.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListener() {
+            @Override
+            public void onProgressChanged(int progress, float progressFloat) {
+
+            }
+
+            @Override
+            public void getProgressOnActionUp(int progress, float progressFloat) {
+                app.ble.setSensity(progress);
+                dangwei1.setText(progress+"档");
+            }
+
+            @Override
+            public void getProgressOnFinally(int progress, float progressFloat) {
+
+            }
+        });
+       /* progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -131,8 +153,8 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
                 app.ble.setSensity(seekBar.getProgress()+1);
                 dangwei1.setText(seekBar.getProgress()+1+"档");
             }
-        });
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        });*/
+        /*spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int pos, long id) {
@@ -146,7 +168,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
             public void onNothingSelected(AdapterView<?> parent) {
                 // Another interface callback
             }
-        });
+        });*/
 
 
 
@@ -186,9 +208,30 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.map:
-//                startActivity(new Intent(getActivity(), MapActivity.class));
+//                startActivity(new Intent(getActivity(), RideLineActivity.class));
 //                startUpApplication("com.autonavi.minimap");
-                setUpBaiduAPPByMine();
+//
+
+//                startActivity(new Intent((getActivity()), MulMapActivity.class));
+
+                Dialog passDialog = DialogUtils.createChangeMapDialog(getActivity(), new DialogCallback() {
+                    @Override
+                    public void confirm() {
+                        super.confirm();
+                        //baidu
+//                        startUpApplication("com.baidu.BaiduMap","没有安装百度地图");
+                        startActivity(new Intent(getActivity(), BaiduMapActivity.class));
+                    }
+                    @Override
+                    public void camareClick() {
+                        super.camareClick();
+                        //gaode
+                        startActivity(new Intent(getActivity(), MapActivity.class));
+                    }
+                });
+
+                passDialog.show();
+
                 break;
             default:
                 break;
@@ -201,7 +244,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
      * @return void [返回类型说明]
      */
     @SuppressWarnings("deprecation")
-    private void startUpApplication(String pkg) {
+    private void startUpApplication(String pkg,String error) {
         PackageManager packageManager = getActivity().getPackageManager();
         PackageInfo packageInfo = null;
         try {
@@ -212,7 +255,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
             e.printStackTrace();
             // 提示没有GPS Test Plus应用
             Toast.makeText(getActivity(),
-                    "没有安装高德地图",
+                    error,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -304,25 +347,33 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         }
         problem.setText(error);
 //        timeTV.setText(time);
-        mileTV.setText(mile+ " KM");
+        String km = app.deviceNotes.speedDanWei(false, "km");
+        if(km.equalsIgnoreCase("mi")){
+           mile = ParseDataUtils.kmToMi(mile);
+           speed=ParseDataUtils.kmToMi(speed);
+        }else{
+
+        }
+        mileTV.setText(mile+" "+km );
         bikespeed.setText(speed);
+        danWei.setText(km+"/h");
+        timeTV.setText(time);
     }
 
     @SuppressWarnings("deprecation")
     public void connectNotify(boolean connect){
         if(connect){
-            connetTips.setBackgroundResource(R.color.colorAccent);
+//            connetTips.setBackgroundResource(R.color.colorAccent);
             connectout.setText("连接成功！");
-            spinner.setVisibility(View.VISIBLE);
-            timeTV.setBase(SystemClock.elapsedRealtime());//计时器清零
+//            spinner.setVisibility(View.VISIBLE);
+            /*timeTV.setBase(SystemClock.elapsedRealtime());//计时器清零
             int hour = (int) ((SystemClock.elapsedRealtime() - timeTV.getBase()) / 1000 / 60);
-            timeTV.setFormat("0"+String.valueOf(hour)+":%s");
-            timeTV.start();
+            timeTV.setFormat("0"+String.valueOf(hour)+":%s");*/
+
         }else{
-            timeTV.stop();
-            connetTips.setBackgroundResource(R.color.colorPrimary);
+//            connetTips.setBackgroundResource(R.color.colorPrimary);
             connectout.setText("连接失败");
-            spinner.setVisibility(View.GONE);
+//            spinner.setVisibility(View.GONE);
         }
     }
 
@@ -365,7 +416,34 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
     @Override
     public void onResume() {
         super.onResume();
+        String dan = app.deviceNotes.speedDanWei(false, "km");
+        String dangwei = danWei.getText().toString().trim();
+        String speed = bikespeed.getText().toString().trim();
+        String[] split = mileTV.getText().toString().trim().split(" ");
 
+        if(dangwei.equalsIgnoreCase(dan)){
+
+        }else{
+            if(dan.equalsIgnoreCase("mi")&&dangwei.equalsIgnoreCase("km")){
+                bikespeed.setText(" "+ParseDataUtils.kmToMi(speed));
+            }
+            if(dan.equalsIgnoreCase("km")&& dangwei.equalsIgnoreCase("mi")){
+                bikespeed.setText(" "+ParseDataUtils.miToKm(speed));
+            }
+        }
+
+        if(dan.equalsIgnoreCase(split[1])){
+
+        }else{
+            if(dan.equalsIgnoreCase("mi")&&split[1].equalsIgnoreCase("km")){
+                mileTV.setText(ParseDataUtils.kmToMi(split[0])+" "+dan);
+            }
+            if(dan.equalsIgnoreCase("km")&& split[1].equalsIgnoreCase("mi")){
+                mileTV.setText(ParseDataUtils.miToKm(split[0])+" "+dan);
+            }
+        }
+
+        danWei.setText(dan+"/h");
         if (mHasNeededSensors) {
             mSensorManager.registerListener(this, mMagneticSensor, SensorManager.SENSOR_DELAY_NORMAL);
             mSensorManager.registerListener(this, mAccelerateSensor, SensorManager.SENSOR_DELAY_NORMAL);
