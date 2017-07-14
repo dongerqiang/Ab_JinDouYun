@@ -36,8 +36,26 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
+            <TextView
+                android:id="@+id/tv_kk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="消耗卡路里:"
+                android:textColor="@color/white"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_kk_tip"
+                android:layout_toRightOf="@+id/tv_kk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:lines="1"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/white"
+                android:layout_centerVertical="true"/>
             <!--<ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -64,23 +82,41 @@
 
 
     <TextView
+        android:layout_alignTop="@+id/map"
+        android:id="@+id/stop_ride"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="结束骑行"
+        android:gravity="center"
+        android:layout_marginTop="3dp"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:background="@color/colorAccent"
+        android:padding="5dp"
+        android:visibility="gone"
+        />
+
+    <TextView
         android:id="@+id/speed_tips"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/speed"
         android:drawablePadding="10dp"
         android:gravity="center"
+        android:layout_marginTop="5dp"
         android:text="speed"
         android:textColor="@color/white"
         android:textSize="30sp"
-        android:layout_below="@+id/connet_tips"
-        android:layout_marginTop="40dp"
+        android:layout_alignTop="@+id/map"
         android:layout_centerHorizontal="true"/>
 
     <ImageView
         android:layout_below="@id/connet_tips"
         android:id="@+id/map"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

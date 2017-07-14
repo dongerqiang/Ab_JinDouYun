@@ -1,12 +1,18 @@
 package com.qdigo.jindouyun.activity;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -27,7 +33,11 @@ import com.baidu.mapapi.model.LatLng;
 import com.qdigo.jindouyun.BaseActivity;
 import com.qdigo.jindouyun.R;
 import com.qdigo.jindouyun.utils.BroadcastUtils;
+import com.qdigo.jindouyun.utils.DialogCallback;
+import com.qdigo.jindouyun.utils.DialogUtils;
 import com.qdigo.jindouyun.utils.ParseDataUtils;
+
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
@@ -129,6 +139,86 @@ public class BaiduMapActivity extends BaseActivity {
         }
 
     }
+    @OnClick(R.id.iv_changeMap)
+    public void changeMap(){
+
+        Dialog changeMapDialog = DialogUtils.createChangeMapDialog(mContext, new DialogCallback() {
+            @Override
+            public void camareClick() {
+                super.camareClick();
+                //高德地图
+                startUpApplication("com.autonavi.minimap","没有安装高德地图");
+            }
+
+            @Override
+            public void confirm() {
+                super.confirm();
+                //百度地图
+                startUpApplication("com.baidu.BaiduMap","没有安装百度地图");
+            }
+        });
+        changeMapDialog.show();
+    }
+    /**
+     * <功能描述> 启动应用程序
+     *
+     * @return void [返回类型说明]
+     */
+    @SuppressWarnings("deprecation")
+    private void startUpApplication(String pkg,String error) {
+        PackageManager packageManager = getPackageManager();
+        PackageInfo packageInfo = null;
+        try {
+            // 获取指定包名的应用程序的PackageInfo实例
+            packageInfo = packageManager.getPackageInfo(pkg, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            // 未找到指定包名的应用程序
+            e.printStackTrace();
+            // 提示没有GPS Test Plus应用
+            Toast.makeText(mContext,
+                    error,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (packageInfo != null) {
+            // 已安装应用
+            Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);
+            resolveIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            resolveIntent.setPackage(packageInfo.packageName);
+            List<ResolveInfo> apps = packageManager.queryIntentActivities(
+                    resolveIntent, 0);
+            ResolveInfo ri = null;
+            try {
+                ri = apps.iterator().next();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+            if (ri != null) {
+                // 获取应用程序对应的启动Activity类名
+                String className = ri.activityInfo.name;
+                // 启动应用程序对应的Activity
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                ComponentName componentName = new ComponentName(pkg, className);
+                intent.setComponent(componentName);
+                startActivity(intent);
+
+               /* Intent intent = null;
+                try {
+                    //intent = Intent.getIntent("androidamap://navi?sourceApplication=筋斗云&poiname=我的目的地&lat="+31.235301+"&lon="+121.481139+"&dev=0");
+                    intent = Intent.getIntent("androidamap://route?sourceApplication=筋斗云&sname=我的位置&dlat="+31.235301+"&dlon="+121.481139+"&dname="+"故障车辆位置"+"&dev=0&m=0&t=1");
+
+                    getActivity().startActivity(intent);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }*/
+
+
+            }
+        }
+    }
+
     BleStateReceiver bleStateReceiver;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -179,19 +269,29 @@ public class BaiduMapActivity extends BaseActivity {
     }
 
     class BleStateReceiver extends BroadcastReceiver {
+        String speed="0";
+        String time = "00:00:00";
+        String currentMile="0";
+        String caluli ="0";
+
         @Override
         public void onReceive(Context ctx, Intent intent) {
             if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
                 int state = intent.getIntExtra(BroadcastUtils.KEY_BLE_STATE, 0);
                 if(state ==1){
-                    app.showToast("已连接");
+                    app.showToast("骑行开始");
+                     speed="0";
+                     time = "00:00:00";
+                     currentMile="0";
+                     caluli ="0";
                 }else{
-                    app.showToast("连接失败");
+                    app.showToast("骑行结束");
+                    showRideReport(caluli,time,currentMile,speed);
                 }
             }else if(intent.getAction().equals(BroadcastUtils.MILEAGE_ACTION)){
-                if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)){
+                if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY)){
                     //总里程
-                    String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_KEY);
+                    String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY);
                     String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
                     if("km".equalsIgnoreCase(kmDanwei)){
                         mTotalMile.setText(km);
@@ -203,21 +303,42 @@ public class BaiduMapActivity extends BaseActivity {
                     //速度
                     String speeddKm = intent.getStringExtra(BroadcastUtils.SPEED_VALUE_KEY);
                     String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
-                    if("km".equalsIgnoreCase(kmDanwei)){
-                        mCurrentSpeed.setText(speeddKm);
-                    }else{
-                        String miToKm = ParseDataUtils.kmToMi(speeddKm);
-                        mCurrentSpeed.setText(miToKm);
+                    if(!"km".equalsIgnoreCase(kmDanwei)){
+                        speeddKm = ParseDataUtils.kmToMi(speeddKm);
                     }
+                    speed = speeddKm;
+                    mCurrentSpeed.setText(speeddKm);
                 }else if(intent.hasExtra(BroadcastUtils.RUNNING_TIME_KEY)){
                     //runningtime
                     String runningtime = intent.getStringExtra(BroadcastUtils.RUNNING_TIME_KEY);
+                    time = runningtime;
                     mRunningTime.setText(runningtime);
                 }
+                caluli = ParseDataUtils.caculateCarLuli(speed,time);
+
             }
         }
 
     }
+
+    /**
+     * 显示骑行报告
+     * @param carluli 卡路里
+     * @param time 骑行时间
+     * @param mile  骑行距离
+     * @param speed 骑行速度
+     */
+    private void showRideReport(String carluli, String time, String mile, String speed) {
+        String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
+        Dialog rideReportDialog = DialogUtils.createRideReportDialog(BaiduMapActivity.this, mile, speed, time, carluli, kmDanwei,new DialogCallback() {
+            @Override
+            public void confirm() {
+                super.confirm();
+            }
+        });
+        rideReportDialog.show();
+    }
+
     BaiduMap.OnMapStatusChangeListener listener = new BaiduMap.OnMapStatusChangeListener() {
         /**
          * 手势操作地图，设置地图状态等操作导致地图状态开始改变。

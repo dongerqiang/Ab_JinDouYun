@@ -35,7 +35,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     @Bind(R.id.tv_total)
     TextView totalmile;
 
-    @Bind(R.id.tv_carluli)
+   @Bind(R.id.tv_carluli)
     TextView mCarLuLi;
 
     /*@Bind(R.id.lockCb)
@@ -62,6 +62,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     LinearLayout danweiLayout;
     @Bind(R.id.caluli)
     LinearLayout kaluli;
+    private String speedStr="0";
 
     @Override
     protected void onResume() {
@@ -79,6 +80,8 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
 
     }
     BleStateReceiver bleStateReceiver;
+    public String timeSe = "00:00:00";
+    public float carluli = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,61 +90,60 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
 
     }
     class BleStateReceiver extends BroadcastReceiver {
-        float mile=0;
         float speed =0;
         int running = 0;
         @Override
         public void onReceive(Context ctx, Intent intent) {
             if (intent.getAction().equals(BroadcastUtils.MILEAGE_ACTION)) {
                 if (intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)) {
-                    String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_KEY);
+                   /* String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_KEY);
                     String km1 = app.deviceNotes.speedDanWei(false, "km");
                     if(!"km".equalsIgnoreCase(km1)){
                         km = ParseDataUtils.kmToMi(km);
                     }
-                    totalmile.setText(km+" "+app.deviceNotes.speedDanWei(false,"km"));
+                    totalmile.setText(km+" "+app.deviceNotes.speedDanWei(false,"km"));*/
                 }else if(intent.hasExtra(BroadcastUtils.BATTERY_VALUE_KEY)){
                     String battery = intent.getStringExtra(BroadcastUtils.BATTERY_VALUE_KEY);
                     volTv.setText(battery+"V");
                 }else if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY)){
                     //本次骑行里程
-                    String currentmile = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY);
-                    mile = Float.parseFloat(currentmile);
+                    String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY);
+                    String km1 = app.deviceNotes.speedDanWei(false, "km");
+                    if(!"km".equalsIgnoreCase(km1)){
+                        km = ParseDataUtils.kmToMi(km);
+                    }
+                    totalmile.setText(km+" "+app.deviceNotes.speedDanWei(false,"km"));
                 }else if (intent.hasExtra(BroadcastUtils.RUNNING_TIME_KEY)){
                     //时间
-                    String time = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY);
+                    String time = intent.getStringExtra(BroadcastUtils.RUNNING_TIME_KEY);
+                    timeSe = time;
                     try {
                         String[] split = time.split(":");
                         //s
                         int runningtime = Integer.parseInt(split[0])*3600+Integer.parseInt(split[1])*60+Integer.parseInt(split[2]);
                         running =runningtime;
-
-
                     }catch (Exception e){
                         running =0;
                     }
 
                 }else if(intent.hasExtra(BroadcastUtils.SPEED_VALUE_KEY)){
-                    String speedStr = intent.getStringExtra(BroadcastUtils.SPEED_VALUE_KEY);
+                    speedStr = intent.getStringExtra(BroadcastUtils.SPEED_VALUE_KEY);
                     speed =Float.parseFloat(speedStr);
                 }
 
-                //计算卡路里消耗
-                int optKg = app.deviceNotes.optKg(false, 60);
-//                optKg*speed*running*9.8*0.2778/4200;
-                int speedIndex =250;
-                if(speed<16){
-                    speedIndex=250;
-                }else if(speed>=16 && speed<19){
-                    speedIndex=402;
-                }else if(speed>=19 && speed<23){
-                    speedIndex=563;
-                }else if(speed>=23){
-                    speedIndex=884;
+            }
+            if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
+                int state = intent.getIntExtra(BroadcastUtils.KEY_BLE_STATE, 0);
+                if(state ==1){
+                    app.showToast("骑行开始");
+                    speed =0;
+                    running = 0;
+                    speedStr="0";
+                    carluli = 0;
+                    timeSe="00:00:00";
+                }else{
+                    app.showToast("骑行结束");
                 }
-                String s = ParseDataUtils.dot2String((float) (speedIndex / (3600 * 60f) * optKg * running));
-                mCarLuLi.setText(s);
-
             }
 
         }
@@ -149,8 +151,8 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void initView() {
         float v = app.deviceNotes.optWheelR(false, 1f);
-
         ljTv.setText(v+"寸");
+        mCarLuLi.setText(app.deviceNotes.optKg(false,60)+"");
         jdsTv.setText(app.deviceNotes.optMotorJds(false, 1)+"");
         volTv.setText(app.deviceNotes.opeMotorVol(false, 1)+"V");
 //        dangTv.setText(app.deviceNotes.opeMotorDang(false, "低"));
@@ -293,11 +295,9 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     @Override
                     public void typeStr(String type) {
                         int parseInt = Integer.parseInt(type);
-                        int optKg1 = app.deviceNotes.optKg(false, 60);
                         int optKg = app.deviceNotes.optKg(true, parseInt);
-                        float v1 = Float.parseFloat(mCarLuLi.getText().toString().trim());
-                        float ss= optKg1*v1/optKg;
-                        mCarLuLi.setText(ParseDataUtils.dot2String(ss));
+
+                        mCarLuLi.setText(type);
                     }
                 });
                 break;

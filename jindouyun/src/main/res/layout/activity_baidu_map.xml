@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_map"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:showIn="@layout/activity_map">
+    android:layout_height="match_parent">
 
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
@@ -102,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableTop="@drawable/change"
-            android:text="切换地图"
+            android:text="地图Client"
             android:textSize="8dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
@@ -111,7 +107,6 @@
             android:textStyle="bold"
             android:gravity="center"
             android:background="@color/white"
-            android:visibility="gone"
             />
         <TextView
             android:layout_marginTop="20dp"

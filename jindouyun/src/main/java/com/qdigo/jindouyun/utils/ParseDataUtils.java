@@ -26,6 +26,27 @@ public class ParseDataUtils {
         parseVoltage(data);
 //        parseSpeed(data);
     }*/
+
+    /**
+     * 解析总里程
+     * @param data
+     * @return
+     */
+    public static String parseMile(byte[] data){
+        //总里程
+        int hallCount = data[8] & 0xff;
+        hallCount<<=8;
+        hallCount |=data[7] &0xff;
+        float circumference = app.deviceNotes.getWheel();
+        int p = app.deviceNotes.optMotorJds(false, 1);
+//        float milr = (float) ((hallCount*2*circumference*Math.PI)/(6*p*1000*3));
+        float milr=(float)( hallCount*2*circumference*Math.PI/(6*p*1000*3));
+        String dot2String = dot3String(milr);
+        Log.w(TAG,"huallcount == "+hallCount);
+        Log.w(TAG,"parseMile == "+dot2String);
+        return dot2String;
+    }
+
     /**
      * 解析速度
      * @param data
@@ -36,14 +57,9 @@ public class ParseDataUtils {
         int hallCount = data[6+2] & 0xff;
         hallCount<<=8;
         hallCount |= data[5+2] & 0xff;
-
-//        float zhiJin =((int) SPUtils.get(mContext,Constant.LUN_JING_KEY,16) *0.0333f);
-        float circumference = app.deviceNotes.getWheel();
         int p = app.deviceNotes.optMotorJds(false, 1);
-//        int p=(int) SPUtils.get(mContext,Constant.JI_DUI_SHU_KEY,23);
-//        float zhiJin =16*0.0333f;
-//        int p = 23;
-        float speed = (float) ((hallCount*7200*circumference*Math.PI)/(6*p*1000*3));
+        float circumference = app.deviceNotes.getWheel();
+        float speed = (float) ((hallCount*7200*circumference*Math.PI)/(6*p*1000*3*1.07));
         String dot2String = dot2String(speed);
         Log.w(TAG,"parseSpeed == "+dot2String);
         System.out.print("parseSpeed == "+dot2String);
@@ -114,23 +130,6 @@ public class ParseDataUtils {
         System.out.print("parseARS == "+sb.toString());
         return sb.toString();
     }
-
-    /**
-     * 解析总里程
-     * @param data
-     * @return
-     */
-    public static String parseMile(byte[] data){
-        //总里程
-        int mile = data[7+2] & 0xff;
-        mile<<=8;
-        mile |=data[8+2] &0xff;
-        String dot2String = dot2String((float) mile / 10);
-        Log.w(TAG,"parseMile == "+dot2String);
-        System.out.print("parseMile == "+dot2String);
-        return dot2String;
-    }
-
 
     /**
      * 解析电压
@@ -235,6 +234,12 @@ public class ParseDataUtils {
          return filesize;
      }
 
+    public static String dot3String(float number){
+        DecimalFormat df = new DecimalFormat("0.000");//格式化小数，不足的补0
+        String filesize = df.format(number);//返回的是String类型的
+        return filesize;
+    }
+
     public static String dot22String(float number){
         DecimalFormat df = new DecimalFormat("0.0");//格式化小数，不足的补0
         String filesize = df.format(number);//返回的是String类型的
@@ -266,4 +271,46 @@ public class ParseDataUtils {
         String ss=(time% 3600) % 60>9?(time% 3600) % 60+"":"0"+(time% 3600) % 60;
         return hh+":"+mm+":"+ss;
     }
+
+    /**
+     * 计算卡路里
+     * @param speedStr
+     * @param time
+     */
+    public static float lastTime = 0;
+    public static String caculateCarLuli(String speedStr,String time) {
+        float speedC = Float.parseFloat(speedStr);
+        //计算卡路里消耗
+        int optKg = app.deviceNotes.optKg(false, 60);
+        int speedIndex =250;
+        if(speedC <16 && speedC>0){
+            speedIndex=250;
+        }else if(speedC >=16 && speedC <19){
+            speedIndex=402;
+        }else if(speedC >=19 && speedC <23){
+            speedIndex=563;
+        }else if(speedC>=23){
+            speedIndex=884;
+        }else {
+            speedIndex = 0;
+        }
+        float running = 0;
+        try {
+            String[] split = time.split(":");
+            //s
+            int runningtime = Integer.parseInt(split[0])*3600+Integer.parseInt(split[1])*60+Integer.parseInt(split[2]);
+            running =runningtime;
+        }catch (Exception e){
+            running =0;
+        }
+        if(lastTime == 0){
+            lastTime =running;
+        }else{
+
+        }
+        String s = ParseDataUtils.dot2String( (speedIndex * optKg * (running-lastTime)/ (3600 * 60f) ));
+        lastTime = running;
+        return s;
+    }
+
 }

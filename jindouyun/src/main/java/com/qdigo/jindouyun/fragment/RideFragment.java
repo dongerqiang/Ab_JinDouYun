@@ -35,6 +35,7 @@ import com.qdigo.jindouyun.utils.DialogCallback;
 import com.qdigo.jindouyun.utils.DialogUtils;
 import com.qdigo.jindouyun.utils.ParseDataUtils;
 import com.qdigo.jindouyun.view.CompassView;
+import com.xiaofu_yan.blux.smart_bike.SmartBike;
 import com.xw.repo.BubbleSeekBar;
 
 import java.io.File;
@@ -63,6 +64,8 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
     private CheckBox screenOn;
     private BubbleSeekBar progress;
     private TextView danWei;
+    private TextView mCarLuLi;
+    private TextView mStopView;
 
 
     @Override
@@ -82,10 +85,11 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
 //        dangwei3 = (TextView) inflate.findViewById(R.id.tv_dangwei3);
 //        dangwei2 = (TextView) inflate.findViewById(R.id.tv_dangwei2);
         dangwei1 = (TextView) inflate.findViewById(R.id.tv_dangwei1);
+        mCarLuLi = (TextView)inflate.findViewById(R.id.tv_kk_tip);
         screenOn = (CheckBox)inflate.findViewById(R.id.screenOn);
+        mStopView = (TextView)inflate.findViewById(R.id.stop_ride);
         MainActivity activity = (MainActivity) getActivity();
-
-        processData(activity.mile,activity.time,activity.error,activity.speed,activity.dangwei);
+        processData(activity.mile,activity.time,activity.error,activity.speed,activity.dangwei,activity.carluli+"");
         connectNotify(((MainActivity)(getActivity())).connect);
 
         initListener();
@@ -120,6 +124,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         dangwei1.setOnClickListener(this);
         /*dangwei2.setOnClickListener(this);
         dangwei3.setOnClickListener(this);*/
+        mStopView.setOnClickListener(this);
         progress.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListener() {
             @Override
             public void onProgressChanged(int progress, float progressFloat) {
@@ -233,6 +238,17 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
                 passDialog.show();
 
                 break;
+            case R.id.stop_ride:
+                if(app.ble.isSmartBikeAvailable()){
+                    app.ble.disConnectDevice();
+                }else if(app.ble.getSmartBike() !=null){
+                    SmartBike smartBike = app.ble.getSmartBike();
+                    boolean connected = app.ble.getSmartBike().connected();
+                    if(connected){
+                        smartBike.cancelConnect();
+                    }
+                }
+                break;
             default:
                 break;
         }
@@ -331,7 +347,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         void onFragmentInteraction(Uri uri);
     }
 
-    public void processData(String mile,String time,String error,String speed,int dangwei){
+    public void processData(String mile,String time,String error,String speed,int dangwei,String carluli){
         if(TextUtils.isEmpty(mile)){
             mile = 0+"";
         }
@@ -358,6 +374,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         bikespeed.setText(speed);
         danWei.setText(km+"/h");
         timeTV.setText(time);
+        mCarLuLi.setText(carluli);
     }
 
     @SuppressWarnings("deprecation")
@@ -365,6 +382,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         if(connect){
 //            connetTips.setBackgroundResource(R.color.colorAccent);
             connectout.setText("连接成功！");
+            mStopView.setVisibility(View.VISIBLE);
 //            spinner.setVisibility(View.VISIBLE);
             /*timeTV.setBase(SystemClock.elapsedRealtime());//计时器清零
             int hour = (int) ((SystemClock.elapsedRealtime() - timeTV.getBase()) / 1000 / 60);
@@ -373,6 +391,7 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
         }else{
 //            connetTips.setBackgroundResource(R.color.colorPrimary);
             connectout.setText("连接失败");
+            mStopView.setVisibility(View.GONE);
 //            spinner.setVisibility(View.GONE);
         }
     }

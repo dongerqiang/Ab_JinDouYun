@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/icon_window_bg" >
+                android:background="@drawable/bg_ride" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -405,7 +405,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="总里程"
+                android:text="骑行里程"
                 android:textColor="#a3a4ac"
                 android:textSize="16sp" />
 
@@ -436,7 +436,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="最近骑行消耗的能量(卡路里)"
+                android:text="体重设置(kg)"
                 android:textColor="#a3a4ac"
                 android:textSize="16sp" />
 
@@ -444,7 +444,7 @@
                 android:id="@+id/tv_carluli"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="60"
                 android:textStyle="bold"
                 android:textColor="#a3a4ac"
                 android:textSize="14sp" />

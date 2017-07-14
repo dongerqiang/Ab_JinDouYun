@@ -112,7 +112,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableTop="@drawable/change"
-            android:text="切换地图"
+            android:text="地图Client"
             android:textSize="8dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
@@ -121,7 +121,6 @@
             android:textStyle="bold"
             android:gravity="center"
             android:background="@color/white"
-            android:visibility="gone"
             />
         <TextView
             android:layout_marginTop="20dp"

@@ -282,6 +282,7 @@ public class BleInterface {
 			currentMileage=0;
 			runningTime = 0 ;
             runningMileage=0;
+			ParseDataUtils.lastTime = 0;
 		}
 	
 		@Override
@@ -317,13 +318,13 @@ public class BleInterface {
 
 			if(dataTime>currentTime){
 				runningTime = (runningTime+(dataTime-currentTime));
-				MyApplication.logBug("--increase mile ="+(runningTime)+" ms");
+				MyApplication.logBug("--increase time ="+(runningTime)+" ms");
 				MyApplication.app.broadUtils.sendMileageRunningTime(ParseDataUtils.FormatMiss(runningTime/1000));
 
 			}else{
 				runningTime = 0;
 			}
-			currentTime = dataTime;
+
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < data.length; i++) {
 				if(i == data.length -1){
@@ -338,21 +339,33 @@ public class BleInterface {
 
 			String mile = ParseDataUtils.parseMile(data);
 			float parseFloat = Float.parseFloat(mile);
-			//km
-			if(currentMileage ==0){
-				currentMileage = parseFloat;
-			}
-			if(parseFloat-currentMileage>=0){
-				MyApplication.logBug("--increase mile ="+(parseFloat-currentMileage)+" km");
-                runningMileage = runningMileage+parseFloat-currentMileage;
-				MyApplication.app.broadUtils.sendMileageDm(ParseDataUtils.dot2String(runningMileage));
-			}
-
-
-			currentMileage = parseFloat;
-
 			String error =ParseDataUtils.parseARS(data);
 			String speed = ParseDataUtils.parseSpeed(mCtx,data);//  km/h
+			//km
+			/*if(currentMileage ==0){
+				currentMileage = parseFloat;
+                runningMileage = 0;
+			}
+			if(parseFloat-currentMileage>0){
+
+//                runningMileage = runningMileage+(parseFloat-currentMileage);
+				if(dataTime>=currentTime){
+//					runningMileage+=parseFloat*(dataTime-currentTime)/1000;
+					runningMileage += Float.parseFloat(speed)*(dataTime-currentTime)/3600/1000;
+					MyApplication.app.broadUtils.sendMileageDm(ParseDataUtils.dot3String(runningMileage));
+					MyApplication.logBug("--increase mile =  "+runningMileage+" -----------------");
+				}
+			}*/
+
+			if(dataTime>=currentTime){
+//					runningMileage+=parseFloat*(dataTime-currentTime)/1000;
+				runningMileage += Float.parseFloat(speed)*(dataTime-currentTime)/3600/1000/3;
+				MyApplication.app.broadUtils.sendMileageDm(ParseDataUtils.dot3String(runningMileage));
+				MyApplication.logBug("--increase mile =  "+runningMileage+" -----------------");
+			}
+
+
+
 
 			int dangwei = ParseDataUtils.parseDangWei(data);
 			Log.w("ParseDataUtils","dangwei  == "+ dangwei+"\n currentTime == "+currentDangWei);
@@ -363,6 +376,8 @@ public class BleInterface {
 
 			app.broadUtils.sendArs(error);
 			currentDangWei = dangwei;
+			currentMileage = parseFloat;
+			currentTime = dataTime;
 		}
 		
 		@Override

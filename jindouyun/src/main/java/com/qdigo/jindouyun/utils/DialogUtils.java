@@ -1,8 +1,10 @@
 package com.qdigo.jindouyun.utils;
 
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -162,6 +164,62 @@ public class DialogUtils {
         lp.width = app.widthPixels;
         lp.height = app.heightPixels;
 
+        loadingDialog.setContentView(v);// 设置布局
+        return loadingDialog;
+
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Dialog createRideReportDialog(Activity context, String mile, String speed, String time, String carluli,String dan, final DialogCallback callback) {
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_ride_report, null);// 得到加载view
+
+        TextView kalulitextview = (TextView) v.findViewById(R.id.kaluli_textview);
+        TextView speedtextview = (TextView) v.findViewById(R.id.speed_textview);
+        TextView mileagetextview = (TextView) v.findViewById(R.id.mileage_textview);
+        TextView timetextview = (TextView) v.findViewById(R.id.time_textview);
+        if(!TextUtils.isEmpty(mile)){
+            mileagetextview.setText(mile);
+        }
+        if(!TextUtils.isEmpty(carluli)){
+            kalulitextview.setText(carluli);
+        }
+        float running = 0;
+        try {
+            String[] split = time.split(":");
+            //s
+            int runningtime = Integer.parseInt(split[0])*3600+Integer.parseInt(split[1])*60+Integer.parseInt(split[2]);
+            running =runningtime;
+        }catch (Exception e){
+            running =0;
+        }
+
+        speedtextview.setText(ParseDataUtils.dot2String((float)(Float.parseFloat(mile)*1000*3.6/running)));
+        if(!TextUtils.isEmpty(time)){
+            timetextview.setText(time);
+        }
+
+        Button ok = (Button) v.findViewById(R.id.ok);// 提示文字
+        final Dialog loadingDialog = new Dialog(context, R.style.loading_dialog);// 创建自定义样式dialog
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (callback != null) {
+                    callback.confirm();
+                }
+                loadingDialog.dismiss();
+            }
+        });
+        loadingDialog.setCancelable(true);// 可以用“返回键”取消
+
+//        Window dialogWindow = loadingDialog.getWindow();
+//        WindowManager m = context.getWindowManager();
+//        Display d = m.getDefaultDisplay(); // 获取屏幕宽、高度
+//        WindowManager.LayoutParams p = dialogWindow.getAttributes(); // 获取对话框当前的参数值
+//        p.height = (int) (d.getHeight() * 0.6); // 高度设置为屏幕的0.6，根据实际情况调整
+//        p.width = (int) (d.getWidth() * 1); // 宽度设置为屏幕的0.65，根据实际情况调整
+//        dialogWindow.setAttributes(p);
         loadingDialog.setContentView(v);// 设置布局
         return loadingDialog;
 

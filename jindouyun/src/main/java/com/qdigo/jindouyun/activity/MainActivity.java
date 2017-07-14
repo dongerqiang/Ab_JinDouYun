@@ -41,6 +41,7 @@ import com.qdigo.jindouyun.fragment.MineFragment;
 import com.qdigo.jindouyun.fragment.MoreFragment;
 import com.qdigo.jindouyun.fragment.RideFragment;
 import com.qdigo.jindouyun.utils.BroadcastUtils;
+import com.qdigo.jindouyun.utils.DialogCallback;
 import com.qdigo.jindouyun.utils.DialogUtils;
 import com.qdigo.jindouyun.utils.ParseDataUtils;
 import com.qdigo.jindouyun.view.CustomDialog;
@@ -89,11 +90,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     private Timer pairTimer;
     public boolean connect = false;
     public BleSdkUtils mBleSdkUtils ;
-    public String mile;
-    public String time;
-    public String error;
-    public String speed;
+    public String mile = "0";
+    public String time = "00:00:00";
+    public String error = "设备正常";
+    public String speed = "0";
+    public float carluli = 0;
     public int dangwei;
+    public float runMile = 0;
     private Timer directTimer;
     private boolean keyDirect;
     private boolean isScan;
@@ -143,14 +146,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     class BleStateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context ctx, Intent intent) {
+
             if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
                 int state = intent.getIntExtra(BroadcastUtils.KEY_BLE_STATE, 0);
                 if(state ==1){
-                    app.showToast("已连接");
+                    carluli = 0;
+                    time="00:00:00";
+                    speed="0";
+                    runMile = 0;
+                    mile="0";
+                    dangwei=0;
+                    app.showToast("开始骑行");
                     broadFragment(true);
                 }else{
-                    app.showToast("连接失败");
+                    app.showToast("结束骑行");
+
                     broadFragment(false);
+
                 }
             }else if(intent.getAction().equals(BroadcastUtils.MILEAGE_ACTION)){
                 /*if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)){
@@ -168,13 +180,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
                     error = ars;
                 }else if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY)){
                     String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_INCREASE_KEY);
-                    mile =km;
+                    float miledd = Float.parseFloat(km);
+//                    runMile +=miledd;
+                    mile = km;
                 }else if(intent.hasExtra(BroadcastUtils.RUNNING_TIME_KEY)){
                     //运行时间
                     String runningtime = intent.getStringExtra(BroadcastUtils.RUNNING_TIME_KEY);
                     time = runningtime;
                 }
+
+
+                carluli += Float.parseFloat(ParseDataUtils.caculateCarLuli(speed,time));
                 broadFragment(true);
+
             }else if(intent.getAction().equals(BroadcastUtils.BLE_CONNECTED)){
 
             }else if(intent.getAction().equals(BroadcastUtils.BLE_DISCONNECT)){
@@ -184,6 +202,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
     }
 
+    /**
+     * 显示骑行报告
+     * @param carluli 卡路里
+     * @param time 骑行时间
+     * @param mile  骑行距离
+     * @param speed 骑行速度
+     */
+    private void showRideReport(String carluli, String time, String mile, String speed) {
+        String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
+
+        Dialog rideReportDialog = DialogUtils.createRideReportDialog(MainActivity.this, mile, speed, time, carluli,kmDanwei, new DialogCallback() {
+            @Override
+            public void confirm() {
+                super.confirm();
+            }
+        });
+        rideReportDialog.show();
+    }
+
+
+
     class BleConnectReceiver extends BroadcastReceiver{
 
         @Override
@@ -191,10 +230,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
             if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
                 int state = intent.getIntExtra(BroadcastUtils.KEY_BLE_STATE, 0);
                 if(state ==1){
-                    app.showToast("已连接");
+                    app.showToast("骑行开始");
+                    carluli = 0;
+                    time="00:00:00";
+                    speed="0";
+                    runMile = 0;
+                    mile="0";
+                    dangwei=0;
                     broadFragment(true);
                 }else{
-                    app.showToast("连接失败");
+                    app.showToast("骑行结束");
+
                     broadFragment(false);
                 }
             }
@@ -997,7 +1043,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         Fragment tab1 = getSupportFragmentManager().findFragmentByTag("tab1");
         if(tab1!=null){
             if(tab1 instanceof RideFragment){
-                ((RideFragment)tab1).processData(mile,time,error,speed,dangwei);
+                ((RideFragment)tab1).processData(mile,time,error,speed,dangwei,carluli+"");
             }
         }
 
@@ -1039,6 +1085,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     public void broadFragment(boolean connect){
         Log.w(TAG,"broadFragment ---- connect = "+connect);
         this.connect =connect;
+        if(!connect){
+            showRideReport(ParseDataUtils.dot2String(carluli),time,mile,speed);
+        }
         /*com.qdigo.jindouyun.utils.DeviceDB.Record rec = new com.qdigo.jindouyun.utils.DeviceDB.Record("", "", "");
         if(!connect){
             com.qdigo.jindouyun.utils.DeviceDB.save(this,rec);
@@ -1060,7 +1109,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         if(fragment1 !=null){
             if(fragment1 instanceof RideFragment){
                 ((RideFragment)fragment1).connectNotify(connect);
-                ((RideFragment)fragment1).processData(mile, time, error, speed, dangwei);
+                ((RideFragment)fragment1).processData(mile, time, error, speed, dangwei,ParseDataUtils.dot2String(carluli));
             }
 
         }
