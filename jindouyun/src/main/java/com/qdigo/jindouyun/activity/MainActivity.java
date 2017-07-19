@@ -25,6 +25,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baoyz.swipemenulistview.SwipeMenu;
@@ -44,6 +45,7 @@ import com.qdigo.jindouyun.utils.BroadcastUtils;
 import com.qdigo.jindouyun.utils.DialogCallback;
 import com.qdigo.jindouyun.utils.DialogUtils;
 import com.qdigo.jindouyun.utils.ParseDataUtils;
+import com.qdigo.jindouyun.utils.ToastUtil;
 import com.qdigo.jindouyun.view.CustomDialog;
 import com.xiaofu_yan.blux.blue_guard.BlueGuard;
 import com.xiaofu_yan.blux.smart_bike.SmartBike;
@@ -52,13 +54,12 @@ import com.xiaofu_yan.blux.smart_bike.SmartBikeManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.Bind;
 
+import static android.R.id.message;
 import static com.qdigo.jindouyun.MyApplication.app;
-import static com.qdigo.jindouyun.R.id.problem;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,MineFragment.OnFragmentInteractionListener,MoreFragment.OnFragmentInteractionListener,RideFragment.OnFragmentInteractionListener{
 
@@ -77,17 +78,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     public DeviceDB.Record mCurrentDevice = null;
     public static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
-    private Dialog directLoading;
+//    private Dialog directLoading;
     private boolean isKeyDirect;
     private DeviceAdapter adapter;
-    private Timer timer;
+//    private Timer timer;
     private List<DeviceDB.Record> mDevices = new ArrayList<>();
     private SwipeMenuListView mListView;
-    private Dialog pairLoading;
+//    private Dialog pairLoading;
     private CustomDialog cusdialog;
     private String pairResult;
     private Dialog dialog;
-    private Timer pairTimer;
+//    private Timer pairTimer;
     public boolean connect = false;
     public BleSdkUtils mBleSdkUtils ;
     public String mile = "0";
@@ -97,9 +98,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     public float carluli = 0;
     public int dangwei;
     public float runMile = 0;
-    private Timer directTimer;
+//    private Timer directTimer;
     private boolean keyDirect;
     private boolean isScan;
+    private Dialog rideReportDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +151,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
             if(intent.getAction().equals(BroadcastUtils.BLE_CONNECT_STATE)){
                 int state = intent.getIntExtra(BroadcastUtils.KEY_BLE_STATE, 0);
-                if(state ==1){
+                /*if(state ==1){
                     carluli = 0;
                     time="00:00:00";
                     speed="0";
@@ -163,7 +165,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
                     broadFragment(false);
 
-                }
+                }*/
             }else if(intent.getAction().equals(BroadcastUtils.MILEAGE_ACTION)){
                 /*if(intent.hasExtra(BroadcastUtils.MILEAGE_VALUE_KEY)){
                     String km = intent.getStringExtra(BroadcastUtils.MILEAGE_VALUE_KEY);
@@ -211,13 +213,39 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
      */
     private void showRideReport(String carluli, String time, String mile, String speed) {
         String kmDanwei = app.deviceNotes.speedDanWei(false, "km");
-
-        Dialog rideReportDialog = DialogUtils.createRideReportDialog(MainActivity.this, mile, speed, time, carluli,kmDanwei, new DialogCallback() {
-            @Override
-            public void confirm() {
-                super.confirm();
+        if(rideReportDialog == null){
+            rideReportDialog = DialogUtils.createRideReportDialog(MainActivity.this, mile, speed, time, carluli,kmDanwei, new DialogCallback() {
+                @Override
+                public void confirm() {
+                    super.confirm();
+                }
+            });
+        }else{
+            TextView kalulitextview = (TextView) rideReportDialog.findViewById(R.id.kaluli_textview);
+            TextView speedtextview = (TextView) rideReportDialog.findViewById(R.id.speed_textview);
+            TextView mileagetextview = (TextView) rideReportDialog.findViewById(R.id.mileage_textview);
+            TextView timetextview = (TextView) rideReportDialog.findViewById(R.id.time_textview);
+            if(!TextUtils.isEmpty(mile)){
+                mileagetextview.setText(mile);
             }
-        });
+            if(!TextUtils.isEmpty(carluli)){
+                kalulitextview.setText(carluli);
+            }
+            float running = 0;
+            try {
+                String[] split = time.split(":");
+                //s
+                int runningtime = Integer.parseInt(split[0])*3600+Integer.parseInt(split[1])*60+Integer.parseInt(split[2]);
+                running =runningtime;
+            }catch (Exception e){
+                running =0;
+            }
+
+            speedtextview.setText(ParseDataUtils.dot2String((float)(Float.parseFloat(mile)*1000*3.6/running)));
+            if(!TextUtils.isEmpty(time)){
+                timetextview.setText(time);
+            }
+        }
         rideReportDialog.show();
     }
 
@@ -383,7 +411,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     public void openBluetooth() {
         //判断设备是否支持ble
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "不支持BLE蓝牙", Toast.LENGTH_SHORT).show();
+            ToastUtil.showToast(this,"不支持BLE蓝牙");
             return;
         }
         // 初始化蓝牙适配器
@@ -409,11 +437,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "开启蓝牙成功!", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast(this,"开启蓝牙成功!");
                 // mBluetoothAdapter.enable(); 此方法不需要询问用户，直接开启 但需要admin的权限
 //                scanBluetooth();
             } else {
-                Toast.makeText(this, "开启蓝牙失败,请重试!", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast(this,"开启蓝牙失败,请重试!");
             }
         }
 
@@ -434,14 +462,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
             if (mBleSdkUtils.isScanning()) {
                 mBleSdkUtils.stopScanBleDevice();
             }
-            if(directTimer == null){
+           /* if(directTimer == null){
                 directTimer = new Timer();
             }
 
-            directTimer.schedule(new DirectTask(), 10 * 1000);
+            directTimer.schedule(new DirectTask(), 10 * 1000);*/
 
-            directLoading = DialogUtils.createLoadingDialog(MainActivity.this, "连接车辆中...");
-            directLoading.show();
+//            directLoading = DialogUtils.createLoadingDialog(MainActivity.this, "连接车辆中...");
+//            directLoading.show();
             isKeyDirect = true;
             Log.w(TAG,"scanBluetooth isKeyDirect = "+isKeyDirect +" \nkey = "+mCurrentDevice.key +
                     "\nidentifier == "+mCurrentDevice.identifier);
@@ -476,13 +504,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
                             @Override
                             public void smartBikeConnected() {
-                                if(directTimer !=null){
+                                /*if(directTimer !=null){
                                     directTimer.cancel();
                                     directTimer = null;
-                                }
-                                if(directLoading !=null &&directLoading.isShowing()){
+                                }*/
+                                /*if(directLoading !=null &&directLoading.isShowing()){
                                     directLoading.dismiss();
-                                }
+                                }*/
                                 broadFragment(true);
                                 Toast.makeText(mContext,"直连成功",Toast.LENGTH_SHORT).show();
                             }
@@ -490,13 +518,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
                             @Override
                             public void smartBikeDisConnectted(BlueGuard.DisconnectReason reason) {
                                 Log.w(TAG,"reason = "+reason);
-                                if(directTimer !=null){
+                                /*if(directTimer !=null){
                                     directTimer.cancel();
                                     directTimer = null;
-                                }
-                                if(directLoading !=null &&directLoading.isShowing()){
+                                }*/
+                                /*if(directLoading !=null &&directLoading.isShowing()){
                                     directLoading.dismiss();
-                                }
+                                }*/
                                 broadFragment(false);
                                 if(reason != BlueGuard.DisconnectReason.CLOSED){
                                     DeviceDB.deleteKey(mContext);
@@ -528,13 +556,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
                     @Override
                     public void smartBikeConnected() {
-                        if(directTimer !=null){
+                        /*if(directTimer !=null){
                             directTimer.cancel();
                             directTimer = null;
-                        }
-                        if(directLoading !=null &&directLoading.isShowing()){
+                        }*/
+                        /*if(directLoading !=null &&directLoading.isShowing()){
                             directLoading.dismiss();
-                        }
+                        }*/
                         broadFragment(true);
                         Toast.makeText(mContext,"直连成功",Toast.LENGTH_SHORT).show();
                     }
@@ -542,13 +570,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
                     @Override
                     public void smartBikeDisConnectted(BlueGuard.DisconnectReason reason) {
                         Log.w(TAG,"reason = "+reason);
-                        if(directTimer !=null){
+                        /*if(directTimer !=null){
                             directTimer.cancel();
                             directTimer = null;
-                        }
-                        if(directLoading !=null &&directLoading.isShowing()){
+                        }*/
+                        /*if(directLoading !=null &&directLoading.isShowing()){
                             directLoading.dismiss();
-                        }
+                        }*/
                         broadFragment(false);
                         if(reason != BlueGuard.DisconnectReason.CLOSED){
                             DeviceDB.deleteKey(mContext);
@@ -565,10 +593,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
             //扫描 配对连接
             showDeviceDialog();
 
-            if (timer == null) {
+            /*if (timer == null) {
                 timer = new Timer();
             }
-            timer.schedule(new ScanTask(), 30 * 1000);
+            timer.schedule(new ScanTask(), 30 * 1000);*/
             Log.w(TAG,"scanBluetooth isKeyDirect = "+isKeyDirect);
             mBleSdkUtils.scanBleDevice(new MyScanListener() {
 
@@ -586,10 +614,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 //			                Toast.makeText(mContext,"find new devices",Toast.LENGTH_SHORT).show();
                             dialog.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
                         }
-                        if (timer != null) {
-                            timer.cancel();
-                            timer = null;
-                        }
+//                        if (timer != null) {
+//                            timer.cancel();
+//                            timer = null;
+//                        }
                         DeviceDB.saveScan(mContext ,rec);
                         if (adapter != null) {
                             adapter.addDevice(rec);
@@ -753,12 +781,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                pairLoading = DialogUtils.createLoadingDialog(MainActivity.this, "车辆配对中...");
-                pairLoading.show();
-                if (pairTimer == null) {
+               /* pairLoading = DialogUtils.createLoadingDialog(MainActivity.this, "车辆配对中...");
+                pairLoading.show();*/
+                /*if (pairTimer == null) {
                     pairTimer = new Timer();
                 }
-                pairTimer.schedule(new PairTask(), 10*1000);
+                pairTimer.schedule(new PairTask(), 10*1000);*/
                 String carCode = ((CustomDialog) dialog).getEdittext();
                 mBleSdkUtils.stopScanBleDevice();
                 if(TextUtils.isEmpty(carCode)){
@@ -791,11 +819,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
                         @Override
                         public void smartBikePairResult(BlueGuard blueGuard, BlueGuard.PairResult result, String key) {
                             Log.w(TAG, "smartBikePairResult result:" + result + "  key:" + result);
-                            pairLoading.dismiss();
-                            if (pairTimer != null) {
+                            //pairLoading.dismiss();
+                            /*if (pairTimer != null) {
                                 pairTimer.cancel();
                                 pairTimer = null;
-                            }
+                            }*/
                             if (result == BlueGuard.PairResult.SUCCESS) {
                                 //save db
                                 if (!TextUtils.isEmpty(key)) {
@@ -850,7 +878,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
                     });
                     }
                 } else {
-                    pairLoading.dismiss();
+//                    pairLoading.dismiss();
                    /* if (cusdialog != null && cusdialog.isShowing()) {
                         cusdialog.dismiss();
                     }
@@ -926,17 +954,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         @Override
         public void smartBikeConnected() {
             Log.w(TAG, "MySmartBikeListerner, smartBikeConnected "+", smartbike = "+mBleSdkUtils.getSmartBike());
-            if (pairLoading != null && pairLoading.isShowing()) {
+            /*if (pairLoading != null && pairLoading.isShowing()) {
                 pairLoading.dismiss();
-            }
+            }*/
             if (cusdialog != null && cusdialog.isShowing()) {
                 cusdialog.dismiss();
             }
 
             if (isKeyDirect) {
-                if (directLoading != null && directLoading.isShowing()) {
+                /*if (directLoading != null && directLoading.isShowing()) {
                     directLoading.dismiss();
-                }
+                }*/
                 pairResult = "小主，车辆连接直连成功！";
                 isKeyDirect = false;
             } else {
@@ -950,12 +978,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         public void smartBikeDisConnectted(BlueGuard.DisconnectReason reason) {
             Log.w(TAG, "MySmartBikeListerner, smartBikeDisConnectted , reason = " + reason+", smartbike = "+mBleSdkUtils.getSmartBike());
 
-            if (pairLoading != null && pairLoading.isShowing()) {
+            /*if (pairLoading != null && pairLoading.isShowing()) {
                 pairLoading.dismiss();
             }
             if (directLoading != null && directLoading.isShowing()) {
                 directLoading.dismiss();
-            }
+            }*/
             if (cusdialog != null && cusdialog.isShowing()) {
                 cusdialog.dismiss();
             }
@@ -1120,9 +1148,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         @Override
         public void run() {
             Log.w(TAG,"PairTask ----");
-            if (pairLoading != null && pairLoading.isShowing()) {
+            /*if (pairLoading != null && pairLoading.isShowing()) {
                 pairLoading.dismiss();
-            }
+            }*/
             runOnUiThread(new Runnable() {
 
                 @Override
@@ -1141,9 +1169,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,M
         @Override
         public void run() {
             Log.w(TAG,"DirectTask ----");
-            if (directLoading != null && directLoading.isShowing()) {
+            /*if (directLoading != null && directLoading.isShowing()) {
                 directLoading.dismiss();
-            }
+            }*/
             runOnUiThread(new Runnable() {
 
                 @Override

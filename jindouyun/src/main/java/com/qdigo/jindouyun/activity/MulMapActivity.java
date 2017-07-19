@@ -13,13 +13,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amap.api.location.AMapLocationClient;
 import com.qdigo.jindouyun.BaseActivity;
 import com.qdigo.jindouyun.R;
 import com.qdigo.jindouyun.utils.DialogCallback;
 import com.qdigo.jindouyun.utils.DialogUtils;
+import com.qdigo.jindouyun.utils.ToastUtil;
 
 import butterknife.Bind;
 import butterknife.OnClick;
@@ -131,7 +131,7 @@ public class MulMapActivity extends BaseActivity {
     public class JSBridge {
         @JavascriptInterface
         public void toastMessage(String message) {
-            Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+            ToastUtil.showToast(mContext,message);
         }
 
 

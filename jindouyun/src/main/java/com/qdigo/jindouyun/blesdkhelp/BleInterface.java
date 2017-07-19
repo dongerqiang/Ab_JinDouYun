@@ -315,7 +315,6 @@ public class BleInterface {
 		//	[-56, -57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 84, 0, 2]
             Log.w("ParseDataUtils","data  == "+ Arrays.toString(data));
 			long dataTime = System.currentTimeMillis();
-
 			if(dataTime>currentTime){
 				runningTime = (runningTime+(dataTime-currentTime));
 				MyApplication.logBug("--increase time ="+(runningTime)+" ms");
@@ -366,8 +365,8 @@ public class BleInterface {
 
 
 
-
 			int dangwei = ParseDataUtils.parseDangWei(data);
+			mSmartBike.getShockSensitivity();
 			Log.w("ParseDataUtils","dangwei  == "+ dangwei+"\n currentTime == "+currentDangWei);
             app.broadUtils.sendDangWei(dangwei);
             app.broadUtils.sendBattery(ParseDataUtils.parseVoltage(data));
@@ -379,7 +378,8 @@ public class BleInterface {
 			currentMileage = parseFloat;
 			currentTime = dataTime;
 		}
-		
+
+
 		@Override
 		public void blueGuardPairResult(BlueGuard blueGuard, BlueGuard.PairResult result, String key) {
 			if(result == BlueGuard.PairResult.SUCCESS){

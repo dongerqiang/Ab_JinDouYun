@@ -6,12 +6,12 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
 import com.qdigo.jindouyun.blesdkhelp.BleInterface;
 import com.qdigo.jindouyun.utils.BroadcastUtils;
 import com.qdigo.jindouyun.utils.DeviceNotes;
+import com.qdigo.jindouyun.utils.ToastUtil;
 
 import java.lang.reflect.Method;
 
@@ -78,7 +78,8 @@ public class MyApplication extends Application {
         return screenSizeArray;
     }
     public void showToast(String str){
-        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+        ToastUtil.showToast(this,str);
     }
     public static void logBug(String msg) {
         Log.d("jindouyun", msg);
