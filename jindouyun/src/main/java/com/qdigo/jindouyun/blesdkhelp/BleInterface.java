@@ -133,7 +133,17 @@ public class BleInterface {
 			 app.showToast("行驶中，无法使用遥控功能!");
 		}
 	}
-	
+
+	public void setPair(String pair){
+		if(mSmartBike != null&& mSmartBike.connected()){
+			MyApplication.logBug("--setPair  ="+ pair);
+			app.deviceNotes.opePassWord(true,pair);
+			mSmartBike.setPairPasskey(Integer.decode(pair));
+			DeviceDB.save(mCtx,lastDevice);
+		}else{
+			app.deviceNotes.opePassWord(true,pair);
+		}
+	}
 	public void setSmartBikeArmConfigTrue(){
 		if(mSmartBike != null){
 			mSmartBike.setAlarmConfig(true, true);
@@ -216,8 +226,7 @@ public class BleInterface {
 			MyApplication.logBug("binder success");
 			mBlueGuardManager = smartBikeManager;
 			mBlueGuardManager.delegate = new SmartBikeManagerDelegate();
-			//mBlueGuardManager.setContext(mCtx);
-			
+
 			if(lastDevice != null){
 				if(!TextUtils.isEmpty(lastDevice.identifier)){
 					mBlueGuardManager.getDevice(lastDevice.identifier);
@@ -250,23 +259,24 @@ public class BleInterface {
 			MyApplication.logBug("smartBikeManagerGotSmartBike");
 			mSmartBike = smartBike;
 			mSmartBike.delegate = new SmartBikeDelegate();
-			
+			lastDevice = DeviceDB.load(mCtx);
 			if(lastDevice != null){
 				if(!TextUtils.isEmpty(lastDevice.key)){
 					mSmartBike.setConnectionKey(lastDevice.key);
 					mSmartBike.connect();
 				}else{
 					// TODO: 2017-06-26  
-//					mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
-					mSmartBike.pair(Integer.decode("000000"));
+					MyApplication.logBug("pair code === "+app.deviceNotes.opePassWord(false, ""));
+					mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false, "")));
 				}
 			}else{
 				// TODO: 2017-06-26  
-//				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
-				mSmartBike.pair(Integer.decode("000000"));
+				MyApplication.logBug("pair code === "+app.deviceNotes.opePassWord(false, ""));
+				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false, "")));
 			}
 			
 		}
+
 		
 	}
 	
@@ -283,17 +293,47 @@ public class BleInterface {
 			runningTime = 0 ;
             runningMileage=0;
 			ParseDataUtils.lastTime = 0;
+			setPair(app.deviceNotes.opePassWord(false,""));
 		}
 	
 		@Override
 		public void blueGuardDisconnected(BlueGuard blueGuard, BlueGuard.DisconnectReason reason) {
 			 app.broadUtils.sendBleState(BroadcastUtils.BLE_DISCONNECT);
-			if(reason == BlueGuard.DisconnectReason.ERROR_PERMISSION){
+			if(reason == BlueGuard.DisconnectReason.ERROR_PERMISSION||reason == BlueGuard.DisconnectReason.ERROR_KEY){
+				if(lastDevice !=null){
+					lastDevice.key = "";
+//					 lastDevice.identifier="";
+					DeviceDB.save(mCtx,lastDevice);
+					lastDevice = DeviceDB.load(mCtx);
+				}
+				if(reason == BlueGuard.DisconnectReason.ERROR_PERMISSION){
+					MyApplication.app.showToast("请重新连接!");
+//						Toast.makeText(app, "请手动打开配对模式", Toast.LENGTH_SHORT).show();
+				}else if(reason == BlueGuard.DisconnectReason.ERROR_KEY){
+					MyApplication.app.showToast("开启配对后连接！");
+//					 Toast.makeText(app, "error key", Toast.LENGTH_SHORT).show();
+				}
+			}else if(reason == BlueGuard.DisconnectReason.LINK_LOST){
+				MyApplication.app.showToast("距离太远，失去连接！");
+				if(lastDevice != null){
+					if(!TextUtils.isEmpty(lastDevice.key)){
+						mSmartBike.setConnectionKey(lastDevice.key);
+						mSmartBike.connect();
+					}else{
+//						mSmartBike.pair(Integer.decode("000000"));
+						MyApplication.logBug("pair code === "+app.deviceNotes.opePassWord(false, ""));
+						mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false, "")));
+					}
+				}
+			}else{
+				MyApplication.app.showToast("连接失败");
+			}
+			/*if(reason == BlueGuard.DisconnectReason.ERROR_PERMISSION){
 				lastDevice.key = "";
 				lastDevice.name = "";
 				lastDevice.identifier ="";
 				DeviceDB.save(mCtx,lastDevice);
-			}
+			}*/
 		}
 
 		@Override
@@ -336,32 +376,16 @@ public class BleInterface {
 			
 			MyApplication.logBug("data="+sb.toString());
 
-			String mile = ParseDataUtils.parseMile(data);
-			float parseFloat = Float.parseFloat(mile);
+			String mile = ParseDataUtils.parseMile1(data);
+			MyApplication.app.broadUtils.sendMileageDm(mile);
+			float parseFloat = Float.parseFloat(mile);//km
 			String error =ParseDataUtils.parseARS(data);
 			String speed = ParseDataUtils.parseSpeed(mCtx,data);//  km/h
-			//km
-			/*if(currentMileage ==0){
-				currentMileage = parseFloat;
-                runningMileage = 0;
-			}
-			if(parseFloat-currentMileage>0){
-
-//                runningMileage = runningMileage+(parseFloat-currentMileage);
-				if(dataTime>=currentTime){
-//					runningMileage+=parseFloat*(dataTime-currentTime)/1000;
-					runningMileage += Float.parseFloat(speed)*(dataTime-currentTime)/3600/1000;
-					MyApplication.app.broadUtils.sendMileageDm(ParseDataUtils.dot3String(runningMileage));
-					MyApplication.logBug("--increase mile =  "+runningMileage+" -----------------");
-				}
-			}*/
-
-			if(dataTime>=currentTime){
-//					runningMileage+=parseFloat*(dataTime-currentTime)/1000;
+			/*if(dataTime>=currentTime){
 				runningMileage += Float.parseFloat(speed)*(dataTime-currentTime)/3600/1000/3;
 				MyApplication.app.broadUtils.sendMileageDm(ParseDataUtils.dot3String(runningMileage));
 				MyApplication.logBug("--increase mile =  "+runningMileage+" -----------------");
-			}
+			}*/
 
 
 
@@ -382,23 +406,33 @@ public class BleInterface {
 
 		@Override
 		public void blueGuardPairResult(BlueGuard blueGuard, BlueGuard.PairResult result, String key) {
+			MyApplication.logBug("blueGuardPairResult == result = "+result+"; key = "+key);
 			if(result == BlueGuard.PairResult.SUCCESS){
 				DeviceDB.Record rec = new DeviceDB.Record(blueGuard.name(), blueGuard.identifier(), key);
 				if(key == null){
-					rec.key ="";
+					key = "";
 				}
 				DeviceDB.save(mCtx, rec);
 				lastDevice = DeviceDB.load(mCtx);
+			}else if(result == BlueGuard.PairResult.ERROR_KEY){
+				if(lastDevice!=null){
+					lastDevice.key ="";
+					DeviceDB.save(mCtx, lastDevice);
+				}
 			}else{
 				DeviceDB.Record rec = new DeviceDB.Record(blueGuard.name(), blueGuard.identifier(), "");
-				if(key == null){
-					rec.key ="";
-				}
-				DeviceDB.save(mCtx,rec);
+				DeviceDB.save(mCtx, rec);
 				lastDevice = DeviceDB.load(mCtx);
-//				mSmartBike.pair(Integer.decode(app.deviceNotes.opePassWord(false,"")));
+//				mSmartBike.pair(Integer.decode("000000"));
 			}
-//			lastDevice = DeviceDB.load(mCtx);
+			MyApplication.logBug("blueGuardPairResult === name-"+lastDevice.name+";identifier - "+lastDevice.identifier+"; key - "+lastDevice.key);
+
+		}
+
+		@Override
+		public void blueGuardPairPasskey(BlueGuard blueGuard, String passkey) {
+			MyApplication.logBug("blueGuardPairPasskey  === "+passkey);
+//			app.deviceNotes.opePassWord(true,passkey);
 		}
 	}
 

@@ -34,6 +34,7 @@ import com.qdigo.jindouyun.activity.MapActivity;
 import com.qdigo.jindouyun.utils.DialogCallback;
 import com.qdigo.jindouyun.utils.DialogUtils;
 import com.qdigo.jindouyun.utils.ParseDataUtils;
+import com.qdigo.jindouyun.utils.RollingTextView;
 import com.qdigo.jindouyun.view.CompassView;
 import com.xiaofu_yan.blux.smart_bike.SmartBike;
 import com.xw.repo.BubbleSeekBar;
@@ -49,11 +50,11 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
 
     private OnFragmentInteractionListener mListener;
 //    private SeekBar progress;
-    private TextView problem;
-    private TextView bikespeed;
+    private RollingTextView problem;
+    private RollingTextView bikespeed;
     private TextView connectout;
     private ImageView map;
-    private TextView mileTV;
+    private RollingTextView mileTV;
     private TextView timeTV;
     private LinearLayout connetTips;
 //    private Spinner spinner;
@@ -71,15 +72,15 @@ public class RideFragment extends Fragment implements View.OnClickListener,Senso
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflate = inflater.inflate(R.layout.qixing_fragment, container, false);
-        bikespeed = (TextView) inflate.findViewById(R.id.bike_speed);
+        bikespeed = (RollingTextView) inflate.findViewById(R.id.bike_speed);
         connectout = (TextView) inflate.findViewById(R.id.connect_out);
         connetTips = (LinearLayout) inflate.findViewById(R.id.connet_tips);
         mCompassView = (CompassView) inflate.findViewById(R.id.compass);
-        mileTV = (TextView) inflate.findViewById(R.id.mile);
+        mileTV = (RollingTextView) inflate.findViewById(R.id.mile);
         timeTV = (TextView) inflate.findViewById(R.id.time);
         progress = (BubbleSeekBar) inflate.findViewById(R.id.progress);
         danWei = (TextView) inflate.findViewById(R.id.tv_danwei);
-        problem = (TextView) inflate.findViewById(R.id.problem);
+        problem = (RollingTextView) inflate.findViewById(R.id.problem);
 //        spinner = (Spinner)inflate.findViewById(R.id.spinner);
         map = (ImageView) inflate.findViewById(R.id.map);
 //        dangwei3 = (TextView) inflate.findViewById(R.id.tv_dangwei3);

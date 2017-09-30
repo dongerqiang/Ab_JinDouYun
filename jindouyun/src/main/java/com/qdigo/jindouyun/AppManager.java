@@ -68,14 +68,14 @@ public class AppManager {
     /**
      * 结束指定的Activity
      */
-    public void finishActivity(Activity activity) {
+    public  void finishActivity(Activity activity) {
         if (activity != null) {
             activity.finish();
             removeActivity(activity);
         }
     }
 
-    public void removeActivity(Activity activity){
+    public synchronized void removeActivity(Activity activity){
         if (activity != null) {
             activityStack.remove(activity);
         }

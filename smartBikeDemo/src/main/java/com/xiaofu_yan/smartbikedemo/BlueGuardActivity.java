@@ -54,6 +54,28 @@ public class BlueGuardActivity extends Activity {
 		case R.id.button_find:
 			mSmartBike.playSound(BlueGuard.Sound.FIND);
 			break;
+
+		case R.id.button_setP:
+			if(mSmartBike == null) break;
+			LayoutInflater inflater = (LayoutInflater) BlueGuardActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+			View layout = inflater.inflate(R.layout.pair_pass_input, (ViewGroup)findViewById(R.id.pair_pass_word_layout));
+			mPassEditView = (EditText) layout.findViewById(R.id.pair_pass_key_input);
+
+			mPassEditView.setText("000000");
+
+			AlertDialog dialog = new AlertDialog.Builder(BlueGuardActivity.this).
+					setTitle("Pair").
+					setMessage("Pair key:").
+					setPositiveButton("OK", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String password = BlueGuardActivity.this.mPassEditView.getText().toString();
+							Log.w("deq",password);
+							mSmartBike.setPairPasskey(Integer.decode(password));
+						}
+					}).setView(layout).create();
+			dialog.show();
+			break;
 		}
 	}
 

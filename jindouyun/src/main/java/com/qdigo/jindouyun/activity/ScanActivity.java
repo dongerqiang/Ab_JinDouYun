@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,7 +100,7 @@ public class ScanActivity extends BaseActivity implements View.OnClickListener {
                 switch (index) {
                     case 0:
                         // delete
-                        mDeviceList.removePostion(position);
+                        mDeviceList.removeIdentifier(position);
                         break;
 
                 }
@@ -155,26 +156,48 @@ public class ScanActivity extends BaseActivity implements View.OnClickListener {
         }
 
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
+        public View getView(int position, View convertView, ViewGroup viewGroup) {
             // General ListView optimization code.
             LayoutInflater inflater = ScanActivity.this.getLayoutInflater();
-            View row = inflater.inflate(R.layout.listitem_device, null);//viewGroup);
-            updateListItem(row, getDevice(i));
-            return row;
+//            View row = inflater.inflate(R.layout.listitem_device, null);//viewGroup);
+//            updateListItem(row, getDevice(i));
+
+            ViewHolder holder = null;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.listitem_device, null);
+                holder = new ViewHolder();
+                holder.nameTv = (TextView)convertView.findViewById(R.id.device_name);
+
+                holder.identifierTv= (TextView)convertView.findViewById(R.id.device_address);
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder)convertView.getTag();
+            }
+
+            holder.nameTv.setText(mDevices.get(position).rec.name);
+            holder.identifierTv.setText(mDevices.get(position).rec.identifier);
+            return convertView;
+
         }
 
         // Public members.
         void addDevice(DeviceDB.Record r) {
+            boolean isHas = false;
             for(int i=0; i<mDevices.size(); i++) {
-                //ListItem t = mDevices.get(i);
-                //if(t.rec.identifier.equals(r.identifier)) return;
-                DeviceDB.Record t = mDeviceList.getDevice(i);
-                if(t.identifier.equals(r.identifier)) return;
+                DeviceDB.Record t = mDevices.get(i).rec;
+                if(t.identifier.equalsIgnoreCase(r.identifier)){
+                    isHas = true;
+                }
             }
 
-            ListItem item = new ListItem(r);
-            mDevices.add(item);
-            notifyDataSetChanged();
+            if(!isHas){
+                if(!TextUtils.isEmpty(r.name)&& !TextUtils.isEmpty(r.identifier)){
+                    ListItem item = new ListItem(r);
+                    mDevices.add(item);
+                    notifyDataSetChanged();
+                }
+            }
         }
 
         DeviceDB.Record getDevice(int index) {
@@ -183,10 +206,7 @@ public class ScanActivity extends BaseActivity implements View.OnClickListener {
 
         void reset() {
             mDevices.clear();
-//			DeviceDB.Record rec = DeviceDB.load(ScanActivity.this);
-//			if(rec != null)
-//				mDeviceList.addDevice(rec);
-//			notifyDataSetChanged();
+            notifyDataSetChanged();
         }
 
         // Private members.
@@ -199,20 +219,28 @@ public class ScanActivity extends BaseActivity implements View.OnClickListener {
         private List<ListItem> mDevices = new ArrayList<ListItem>();
 
         private void updateListItem(View row, DeviceDB.Record rec) {
-            TextView txt;
-            txt = (TextView)row.findViewById(R.id.device_name);
-            txt.setText(rec.name);
-            txt = (TextView)row.findViewById(R.id.device_address);
-            txt.setText(rec.identifier);
+            TextView nameTv = (TextView)row.findViewById(R.id.device_name);
+            nameTv.setText(rec.name);
+            TextView identifyTv = (TextView)row.findViewById(R.id.device_address);
+            identifyTv.setText(rec.identifier);
         }
 
-        public void removePostion(int position){
-            mDevices.remove(position);
+        public void removeIdentifier(int position){
+            ListItem listItem = mDevices.get(position);
+            for(int i=0; i<mDevices.size(); i++) {
+                if(listItem.rec.equals(mDevices.get(i).rec)){
+                    mDevices.remove(i);
+                }
+            }
             notifyDataSetChanged();
         }
 
     }
 
+    public static class ViewHolder {
+        public TextView nameTv;
+        public TextView identifierTv;
+    }
 
     class BleCallBack extends IBlueCallback {
         @Override

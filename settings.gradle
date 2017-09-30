@@ -1,4 +1,4 @@
-include ':BleOfQdigo', ':testapplication', ':jindouyun'
+include ':BleOfQdigo', ':testapplication', ':jindouyun', ':blediscovery'
 include ':LuYuanDemo'
 include ':bluxBleClient'
 include ':bluxBleServer'

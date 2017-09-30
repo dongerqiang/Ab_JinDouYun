@@ -295,6 +295,11 @@ class BluxBlueGuard extends BluxObject{
 			mVDSmartGuard.writeMileage(pulses);
 		}
 	}
+
+	void setPairPasskey(int pin) {
+		if(mVDPrivate != null)
+			mVDPrivate.setPairPasskey(pin);
+	}
 	
 	void setHomeState(int nState) {
 		if(mVDSmartGuard != null) {

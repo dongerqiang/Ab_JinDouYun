@@ -3,12 +3,13 @@
  */
 package com.xiaofu_yan.blux.blue_guard;
 
-import java.util.UUID;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Message;
 
 import com.xiaofu_yan.blux.le.client.BluxCsClient;
+
+import java.util.UUID;
 
 public class BlueGuard extends BluxCsClient{
 
@@ -185,7 +186,11 @@ public class BlueGuard extends BluxCsClient{
 	public void getPairPasskey() {
 		sendCommand(CMD_GET_PAIR_PASS_KEY);
 	}
-
+	public void setPairPasskey(int passkey) {
+		Bundle data = new Bundle();
+		data.putInt("pass_key", passkey);
+		sendCommand(CMD_SET_PAIR_PASS_KEY, data);
+	}
 	public void getSerialNumber() {
 		sendCommand(CMD_GET_SERIAL_NUMBER);
 	}
@@ -254,6 +259,7 @@ public class BlueGuard extends BluxCsClient{
 	private final static int CMD_GET_SERIAL_NUMBER          = 13;
 	private final static int CMD_GET_SHOCK_SENSITIVITY      = 14;
 	private final static int CMD_GET_PAIR_PASS_KEY          = 18;
+	private final static int CMD_SET_PAIR_PASS_KEY          = 19;
 
 	private final static int CMD_SET_CONNECTION_KEY         = 21;
 	private final static int CMD_PAIR                       = 22;

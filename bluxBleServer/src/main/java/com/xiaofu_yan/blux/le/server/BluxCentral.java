@@ -1,12 +1,12 @@
 package com.xiaofu_yan.blux.le.server;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 class BluxCentral extends BluxObject{
 
@@ -121,7 +121,8 @@ class BluxCentral extends BluxObject{
 				return;
 
 			synchronized(mScanDevicePool) {
-				if(!mScanDevicePool.containsKey(device.getAddress()) && compareScanningServices(scanRecord)) {
+
+				if(!mScanDevicePool.containsKey(device.getAddress()) /*&& compareScanningServices(scanRecord)*/) {
 					mScanDevicePool.put(device.getAddress(), device);
 					delayAction(new ScanReportDelayed(device, rssi), 0);
 				}

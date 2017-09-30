@@ -167,6 +167,11 @@ class BluxVDPrivate extends BluxVirtualDevice{
 		writeRegister(REG_PRIVATE_NVM, data);
 	}
 
+	void setPairPasskey(int key) {
+		byte[] data = new byte[4];
+		l2le(key, data, 0);
+		readRegister(REG_PAIR_PASSKEY, data);
+	}
 
 	// BluxVD Overrides
 	static boolean isKindOf(UUID uuidType) {

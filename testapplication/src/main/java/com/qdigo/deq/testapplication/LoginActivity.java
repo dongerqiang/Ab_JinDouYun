@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -30,7 +29,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -90,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        Button mBtnShare = (Button)findViewById(R.id.btn_share);
+        /*Button mBtnShare = (Button)findViewById(R.id.btn_share);
         mBtnShare.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,7 +118,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 intent.putExtra(Intent.EXTRA_TEXT, "这里是分享内容"); // 分享的内容
                 startActivity(Intent.createChooser(intent, "ccc"));// 目标应用选择对话框的标题;
             }
-        });
+        });*/
     }
 
     private void populateAutoComplete() {

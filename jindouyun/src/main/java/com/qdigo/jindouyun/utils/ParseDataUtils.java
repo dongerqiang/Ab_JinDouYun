@@ -47,6 +47,23 @@ public class ParseDataUtils {
         return dot2String;
     }
 
+    public static String parseMile1(byte[] data){
+        //总里程
+        int mile = data[9] & 0xff;
+        mile<<=8;
+        mile |=data[10] &0xff;
+        mile<<=8;
+        mile |=data[11] &0xff;
+        mile<<=8;
+        mile |=data[12] &0xff;
+        float circumference = app.deviceNotes.getWheel();
+        int p = app.deviceNotes.optMotorJds(false, 1);
+        float milr=(float)( mile*2*circumference*Math.PI/(6*p*1000*3*5));
+        String dot2String = dot3String(milr);
+        Log.w(TAG,"parseMile == "+dot2String);
+        return dot2String;
+    }
+
     /**
      * 解析速度
      * @param data
@@ -54,9 +71,9 @@ public class ParseDataUtils {
      */
     public static String parseSpeed(Context mContext, byte[] data){
         //霍尔计数
-        int hallCount = data[6+2] & 0xff;
+        int hallCount = data[7] & 0xff;
         hallCount<<=8;
-        hallCount |= data[5+2] & 0xff;
+        hallCount |= data[8] & 0xff;
         int p = app.deviceNotes.optMotorJds(false, 1);
         float circumference = app.deviceNotes.getWheel();
         float speed = (float) ((hallCount*7200*circumference*Math.PI)/(6*p*1000*3*1.07));
@@ -89,7 +106,7 @@ public class ParseDataUtils {
      * @return
      */
     public static String parseARS(byte[] data){
-        int asr = data[11+2] & 0xff;
+        int asr = data[15] & 0xff;
         StringBuffer sb = new StringBuffer();
 
         if((asr & 0x01) != 0){
@@ -97,23 +114,23 @@ public class ParseDataUtils {
         }
 
         if((asr & 0x02) != 0){
-            sb.append(",霍尔故障");
+            sb.append(" 霍尔故障");
         }
 
         if((asr & 0x04) != 0){
-            sb.append(",转把故障");
+            sb.append(" 转把故障");
         }
 
         if((asr & 0x08) != 0){
-            sb.append(",刹把故障");
+            sb.append(" 刹把故障");
         }
 
         if((asr & 0x10) != 0){
-            sb.append(",电池欠压故障");
+            sb.append(" 电池欠压故障");
         }
 
         if((asr & 0x20) != 0){
-            sb.append(",电池高温故障");
+            sb.append(" 电池高温故障");
         }
 
         if((asr & 0x40) != 0){
@@ -121,10 +138,10 @@ public class ParseDataUtils {
         }
 
         if((asr &0x80) != 0){
-            sb.append(",电池过冲故障");
+            sb.append(" 电池过冲故障");
         }
         if((asr &0xff) == 0){
-            sb.append("设备正常");
+            sb.append(" 设备正常");
         }
         Log.w(TAG,"parseARS == "+sb.toString());
         System.out.print("parseARS == "+sb.toString());
@@ -172,7 +189,7 @@ public class ParseDataUtils {
      * @return
      */
     public static int parseDangWei(byte[] data){
-        int ars = getLow4(data[9+2]);
+        int ars = getLow4(data[13]);
         Log.w(TAG,"parseDangWei ==" +ars);
         System.out.print("parseDangWei ==" +ars);
         return ars;
@@ -224,7 +241,7 @@ public class ParseDataUtils {
 
     public static int getLow4(byte data){//获取低四位
         int low;
-        low = (data & 0x0f);
+        low = (data & 0x1f);
         Log.w(TAG,"档位 : "+low);
         return low;
     }

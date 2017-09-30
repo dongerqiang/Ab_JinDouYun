@@ -1,11 +1,5 @@
 package com.xiaofu_yan.blux.le.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -15,6 +9,12 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 class BluxPeripheral extends BluxObject{
 
@@ -44,7 +44,7 @@ class BluxPeripheral extends BluxObject{
 			//	I should mention that there is a race condition in BluetoothGatt.
 			//	java that can cause a direct connection request even if autoconnect=true is passed into BluetoothDevice#connectGatt().
 
-			Log.w("BLUX", "<conn: " + newState + " : " + status);
+			Log.w("BLUX", " " + newState + " : " + status);
 
 			if(newState == BluetoothProfile.STATE_CONNECTED) {
 				delayAction(new ConnectedDelayed(status), 0);

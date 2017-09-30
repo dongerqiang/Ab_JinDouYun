@@ -72,14 +72,17 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold"/>
 
-            <Button
-                android:id="@+id/btn_share"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="分享"
-                android:textStyle="bold"/>
+                android:gravity="center"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:text="50 sdfasdfdsfdsfsdfdfdskm"/>
 
         </LinearLayout>
     </ScrollView>

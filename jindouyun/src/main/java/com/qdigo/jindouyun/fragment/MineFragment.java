@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qdigo.jindouyun.MyApplication;
 import com.qdigo.jindouyun.R;
 import com.qdigo.jindouyun.activity.MainActivity;
 import com.qdigo.jindouyun.activity.ScanActivity;
@@ -153,45 +154,20 @@ public class MineFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.connect_text:
-                //connect
-                /*SmartBike smartBike = ((MainActivity) (getActivity())).mBleSdkUtils.getSmartBike();
-                if(smartBike == null){
-                    Log.w(TAG,"smartBike = "+smartBike);
-                    ((MainActivity)getActivity()).initBluetooth();
-                    return;
-
-                }else{
-                    boolean connected = smartBike.connected();
-                    Log.w(TAG,"connect = "+connected);
-                    if(connected){
-                        //连接
-                        connectNotify(false);
-                        ((MainActivity)(getActivity())).mBleSdkUtils.disConnectDevice();
-                    }else{
-                        //断开
-                        ((MainActivity)getActivity()).initBluetooth();
-
-                    }
-                }
-                boolean connect = ((MainActivity) getActivity()).connect;
-                if(connect){
-                    connectNotify(false);
-                    ((MainActivity)(getActivity())).mBleSdkUtils.disConnectDevice();
-                }else{
-                    ((MainActivity)getActivity()).initBluetooth();
-                }*/
                 if(app.ble.isSmartBikeAvailable()){
                     app.ble.disConnectDevice();
                 }else if(app.ble.getSmartBike() !=null){
                     SmartBike smartBike = app.ble.getSmartBike();
                     boolean connected = app.ble.getSmartBike().connected();
                     if(connected){
+                        //取消
                         smartBike.cancelConnect();
                     }else{
                         DeviceDB.Record load = DeviceDB.load(getActivity());
                         app.ble.initBle(getActivity());
                         if(load != null){
                             if(!TextUtils.isEmpty(load.key)){
+                                MyApplication.logBug("key pair === "+load.key);
                                 smartBike.setConnectionKey(load.key);
                                 smartBike.connect();
                             }else{
@@ -210,8 +186,11 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 //change password 0
                 Dialog passDialog = DialogUtils.createPassDialog(getActivity(), new DialogCallback() {
                     @Override
-                    public void confirm() {
+                    public void confirm(String imei) {
                         super.confirm();
+
+                        app.ble.setPair(imei);
+
                     }
                 });
                 passDialog.show();

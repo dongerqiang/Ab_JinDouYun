@@ -135,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/battery1"/>
-        <TextView
+        <com.qdigo.jindouyun.utils.RollingTextView
             android:id="@+id/bike_speed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -143,13 +143,10 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="70sp"
-            android:lines="1"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:textColor="@color/white"
-            android:text="1000.00"/>
+            android:text="1000.0011"/>
         <TextView
             android:id="@+id/tv_danwei"
             android:layout_marginEnd="10dp"
@@ -162,18 +159,16 @@
             android:text="km/h"/>
     </LinearLayout>
 
-    <TextView
+    <com.qdigo.jindouyun.utils.RollingTextView
         android:id="@+id/problem"
         android:layout_below="@id/speed"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="设备正常"
         android:textSize="20sp"
-        android:lines="1"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
+        android:ellipsize="end"
+        android:maxLines="2"
         android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"
         android:textColor="#ff0000"
@@ -260,7 +255,7 @@
         app:bsb_second_track_color="@color/blue"
         app:bsb_section_count="1"
         app:bsb_section_text_position="bottom_sides"
-        app:bsb_show_progress_in_float="true"
+        app:bsb_show_progress_in_float="false"
         app:bsb_show_section_mark="true"
         app:bsb_show_section_text="true"
         app:bsb_show_thumb_text="true"
@@ -281,19 +276,16 @@
             android:layout_marginStart="10dp"
             android:drawableStart="@drawable/flag"
             android:gravity="center"
-            android:text="里程："
+            android:text="骑行里程："
             android:textColor="@color/white"/>
 
-        <TextView
+        <com.qdigo.jindouyun.utils.RollingTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:lines="1"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="50 km"
             android:textColor="@color/white"
             android:id="@+id/mile"/>
@@ -341,8 +333,7 @@
             android:text="屏幕常亮"
             android:textColor="@color/white"
             android:gravity="center_vertical"
-            android:drawableStart="@drawable/light2"
-            android:drawablePadding="5dp"/>
+            android:drawableStart="@drawable/light2"/>
 
         <CheckBox
             android:id="@+id/screenOn"

@@ -116,9 +116,8 @@ public class DialogUtils {
             @Override
             public void onClick(View v) {
                 if(callback!= null){
-                    callback.confirm();
+                    callback.confirm(et_pw.getText().toString().trim());
                 }
-                app.deviceNotes.opePassWord(true,et_pw.getText().toString().trim());
                 loadingDialog.dismiss();
             }
         });

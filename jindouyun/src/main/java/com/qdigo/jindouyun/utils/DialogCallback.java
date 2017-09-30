@@ -16,5 +16,7 @@ public abstract class DialogCallback {
 	public void confirm(){
 		
 	}
-	
+	public void confirm(String pass){
+
+	}
 }

@@ -45,8 +45,6 @@ dependencies {
     })
     compile files('libs/AMap_Location_V3.1.0_20161027.jar')
     compile files('libs/AMap_Search_V3.6.1_20161122.jar')
-    compile files('libs/BluxBleClient.jar')
-    compile files('libs/BluxBleServer.jar')
     compile 'com.android.support:appcompat-v7:25.1.1'
     compile 'com.android.support:design:25.1.1'
     compile 'com.android.support:support-v4:25.1.1'
@@ -57,4 +55,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.xw.repo:bubbleseekbar:3.4-lite'
     testCompile 'junit:junit:4.12'
+    compile project(':bluxBleClient')
+    compile project(':bluxBleServer')
 }

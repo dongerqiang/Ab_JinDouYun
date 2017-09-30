@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.xiaofu_yan.smartbikedemo"
         minSdkVersion 18
-        targetSdkVersion 25
+        targetSdkVersion 19
     }
     /*dexOptions {
         javaMaxHeapSize "4g"

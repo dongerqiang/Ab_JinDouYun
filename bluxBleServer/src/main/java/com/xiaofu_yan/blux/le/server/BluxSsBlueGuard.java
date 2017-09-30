@@ -1,12 +1,12 @@
 package com.xiaofu_yan.blux.le.server;
 
-import java.util.UUID;
-
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 
 import com.xiaofu_yan.blux.le.server.BluxBlueGuard.State;
+
+import java.util.UUID;
 
 class BluxSsBlueGuard extends BluxSsProxy{
 
@@ -53,6 +53,7 @@ class BluxSsBlueGuard extends BluxSsProxy{
 	private final static int CMD_GET_SERIAL_NUMBER          = 13;
 	private final static int CMD_GET_SHOCK_SENSITIVITY      = 14;
 	private final static int CMD_GET_PAIR_PASS_KEY          = 18;
+	private final static int CMD_SET_PAIR_PASS_KEY          = 19;
 
 	private final static int CMD_SET_CONNECTION_KEY         = 21;
 	private final static int CMD_PAIR                       = 22;
@@ -207,7 +208,10 @@ class BluxSsBlueGuard extends BluxSsProxy{
 		case CMD_GET_PAIR_PASS_KEY:
 			mBlueGuard.getPairPasskey();
 			break;
-
+		case CMD_SET_PAIR_PASS_KEY:
+			int passKey = cmd.getData().getInt("pass_key");
+			mBlueGuard.setPairPasskey(passKey);
+			break;
 		case CMD_GET_ALARM_CONFIG:
 			mBlueGuard.getAlarmConfig();
 			break;
